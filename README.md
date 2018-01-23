@@ -9,7 +9,9 @@ Raspberry Pi 3 model B+
 
     *6 axis IMU MPU6050
 
-    *2 cellular baterry pack (1 for the Pi, one for the motors) 
+    *2 cellular baterry pack (1 for the Pi, one for the motors)
+    
+    *Dual channel Motor driver (TB6612FNG)
 
 
 Unitary tests:
