@@ -39,22 +39,48 @@ public class IncremetalEncoderUnitaryTest {
         System.out.println("WheelEncoder setup");
 
         // create and register gpio pin listener
+        estimatedTime = System.currentTimeMillis();
         wheelCoder.addListener((GpioPinListenerDigital) (GpioPinDigitalStateChangeEvent event) -> {
             estimatedTime = System.currentTimeMillis() - estimatedTime;
-//            if (estimatedTime > 1000) {
-//                wheelCoderUpdated = true;
-//            }
-if(event.getEdge()==PinEdge.RISING)
-            wheelCpt++;
+            if (estimatedTime > 50) {
+                wheelCoderUpdated = true;
+            }
+            if (event.getEdge() == PinEdge.RISING) {
+                wheelCpt++;
+            }
         });
         MotorController motor = new MotorController(gpio, RaspiPin.GPIO_04, RaspiPin.GPIO_02, RaspiPin.GPIO_01, RaspiPin.GPIO_03);
 
+        //PID 
+        double error_prior = 0;
+        double integral = 0;
+        double kP = 10;
+        double kI = 0.01;
+        double kD = 1;
+long speedRpm, pulsePerSecond;
         while (true) {
-            motor.drive(100, 1070);
-            motor.brake();
-            System.out.println(wheelCpt);
-            wheelCpt = 0;
+            if (wheelCoderUpdated) {
+                 pulsePerSecond = wheelCpt*1000/estimatedTime;
+                 speedRpm = pulsePerSecond *60/20;
+                 System.out.println("speedRpm= "+ speedRpm);
+//            motor.drive(100, 1070);
+//            motor.brake();
+//            System.out.println(wheelCpt);
+//            wheelCpt = 0;
+
+//                while (error < 10) {
+//                    error = desired_value – actual_value;
+//                    integral = integral + (error * iteration_time);
+//                    derivative = (error – error_prior)/iteration_time;
+//                    output = KP * error + KI * integral + KD * derivative + bias;
+//                    error_prior = error;
+////                sleep(iteration_time);
+//                }
+
+                estimatedTime = System.currentTimeMillis();
+            }
         }
+
     }
 
 }
