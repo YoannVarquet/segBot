@@ -112,12 +112,7 @@ public class MotorController {
     }
 
     public void drive(int speed, int durationMs) {
-        STBYpin.setState(PinState.HIGH);
-        if (speed >= 0) {
-            forward(speed);
-        } else {
-            reverse(-speed);
-        }
+        drive(speed);
         try {
             Thread.sleep(durationMs);
         } catch (InterruptedException ex) {
@@ -133,13 +128,13 @@ public class MotorController {
     }
 
     private void reverse(int speed) {
-        In2pin.setState(PinState.HIGH);
         In1pin.setState(PinState.LOW);
+        In2pin.setState(PinState.HIGH);
         PWMpin.setPwm(speed);
 
     }
 
-    void brake() {
+    public void   brake() {
         In2pin.setState(PinState.HIGH);
         In1pin.setState(PinState.HIGH);
         PWMpin.setPwm(0);

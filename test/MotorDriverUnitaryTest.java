@@ -1,15 +1,8 @@
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
-import com.pi4j.io.gpio.GpioPinDigitalOutput;
-import com.pi4j.io.gpio.GpioPinPwmOutput;
-import com.pi4j.io.gpio.Pin;
-import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
-import com.pi4j.util.CommandArgumentParser;
 import iprobot.helpers.MotorController;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -26,25 +19,26 @@ public class MotorDriverUnitaryTest {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-    GpioController gpio = GpioFactory.getInstance();
-        MotorController motor = new MotorController(gpio, RaspiPin.GPIO_00, RaspiPin.GPIO_02, RaspiPin.GPIO_01, RaspiPin.GPIO_03);
+        GpioController gpio = GpioFactory.getInstance();
+        MotorController motor = new MotorController(gpio, RaspiPin.GPIO_04, RaspiPin.GPIO_02, RaspiPin.GPIO_01, RaspiPin.GPIO_03);
         int cpt = 0;
         int inc = 1;
-        while (true) {
+        int times = 2;
+        while (times > 0) {
 
             if (cpt >= 255) {
                 inc = -1;
+                times--;
             }
             if (cpt <= -255) {
                 inc = 1;
             }
             cpt += inc;
-            motor.drive(cpt,5);
+            motor.drive(cpt, 5);
             System.out.println("PWM rate is: " + cpt);
+
         }
-    
-    
-    
+        motor.brake();
     }
     /**
      * @param args the command line arguments
