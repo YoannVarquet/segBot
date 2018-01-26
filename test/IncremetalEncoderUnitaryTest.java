@@ -46,7 +46,7 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
     /**
      * The time series data.
      */
-    private TimeSeries series;
+    static TimeSeries series;
 
     /**
      * The most recent value added.
@@ -101,7 +101,7 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
         axis.setAutoRange(true);
         axis.setFixedAutoRange(60000.0);  // 60 seconds
         axis = plot.getRangeAxis();
-        axis.setRange(0.0, 200.0);
+        axis.setRange(-1.25, 1.250);
         return result;
     }
 
@@ -193,17 +193,18 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
         motor.brake();
         double speedRpm, pulsePerSecond, speedMSec;
         motor.drive(255);
-
+int compterrr=0;
         while (true) {
             if (wheelCoderUpdated) {
+                compterrr++;
 
                 //compute RPM
                 wheelCoderUpdated = false;
                 //    motor.brake();
                 pulsePerSecond = (wheelCpt * 1000.0) / (double) estimatedTime;
                 speedRpm = (pulsePerSecond * 60.0) / 20.0;
-                speedMSec = 0.052 * speedRpm * 010472;
-                System.out.println("speedRpm= " + speedRpm + "\twheelCpt= " + wheelCpt + "\testimatedTime= " + estimatedTime);
+                speedMSec = 0.052 * speedRpm * 0.10472;
+                //System.out.println("speedRpm= " + speedRpm + "\twheelCpt= " + wheelCpt + "\testimatedTime= " + estimatedTime);
                 // motor.drive(255);
                 wheelCpt = 0;
                 previousTime = System.currentTimeMillis();
@@ -221,9 +222,16 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
 
 //            double position = filter.getStateEstimation()[0];
                 double velocity = filter.getStateEstimation()[1];
-                lastValue = velocity;
+                lastValue = speedMSec;
                 System.out.println("speedMSec= " + speedMSec + "\tvelocity= " + velocity + "\testimatedTime= " + estimatedTime);
-
+final Millisecond now = new Millisecond();
+//            System.out.println("Now = " + now.toString());
+            series.add(new Millisecond(), lastValue);
+            
+            if (compterrr > 100){
+            compterrr=0;
+            motor.drive((int) (Math.random()*512)-256);
+            }
                 //compute PID
 //            motor.drive(100, 1070);
 //            motor.brake();
