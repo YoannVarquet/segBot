@@ -105,24 +105,8 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
         return result;
     }
 
-    // ****************************************************************************
-    // * JFREECHART DEVELOPER GUIDE                                               *
-    // * The JFreeChart Developer Guide, written by David Gilbert, is available   *
-    // * to purchase from Object Refinery Limited:                                *
-    // *                                                                          *
-    // * http://www.object-refinery.com/jfreechart/guide.html                     *
-    // *                                                                          *
-    // * Sales are used to provide funding for the JFreeChart project - please    * 
-    // * support us so that we can continue developing free software.             *
-    // ****************************************************************************
-    /**
-     * Starting point for the demonstration application.
-     *
-     * @param args ignored.
-     */
-    /**
-     * @param args the command line arguments
-     */
+    
+    
     static GpioPinDigitalInput wheelCoder;
     static boolean wheelCoderUpdated = false;
     static long estimatedTime = 0;
@@ -209,7 +193,7 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
         double kI = 0.01;
         double kD = 1;
         motor.brake();
-        double speedRpm, pulsePerSecond;
+        double speedRpm, pulsePerSecond, speedMSec;
         motor.drive(255);
 
         while (true) {
@@ -220,6 +204,7 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
                 //    motor.brake();
                 pulsePerSecond = (wheelCpt * 1000.0) / (double) estimatedTime;
                 speedRpm = (pulsePerSecond * 60.0) / 20.0;
+                speedMSec = 0.052*speedRpm*010472;
                 System.out.println("speedRpm= " + speedRpm + "\twheelCpt= " + wheelCpt + "\testimatedTime= " + estimatedTime);
                 // motor.drive(255);
                 wheelCpt = 0;
@@ -229,13 +214,14 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
                 // x = A * x + B * u + pNoise
                 x = A.operate(x).add(B.operate(u));
                 // z = H * x + m_noise
+                
                 RealVector z = H.operate(x);
                 filter.correct(z);
 
 //            double position = filter.getStateEstimation()[0];
                 double velocity = filter.getStateEstimation()[1];
                 lastValue = velocity;
-                System.out.println("speedRpm= " + speedRpm + "\tvelocity= " + velocity + "\testimatedTime= " + estimatedTime);
+                System.out.println("speedMSec= " + speedMSec + "\tvelocity= " + velocity + "\testimatedTime= " + estimatedTime);
 
                 //compute PID
 //            motor.drive(100, 1070);
