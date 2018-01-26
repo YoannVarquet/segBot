@@ -63,8 +63,8 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
 
         super(title);
         this.series = new TimeSeries("speed", Millisecond.class);
-        final TimeSeriesCollection dataset = new TimeSeriesCollection(this.series);
-        final JFreeChart chart = createChart(dataset);
+        final TimeSeriesCollection dataset0 = new TimeSeriesCollection(this.series);
+        final JFreeChart chart = createChart(dataset0);
 
         final ChartPanel chartPanel = new ChartPanel(chart);
         final JButton button = new JButton("Add New Data Item");
@@ -207,10 +207,9 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
                 speedMSec = 0.052 * speedRpm * 0.10472;
 
 // If you have a varying frame rate
-                smoothedValue += estimatedTime * (speedMSec - smoothedValue) / 2; //System.out.println("speedRpm= " + speedRpm + "\twheelCpt= " + wheelCpt + "\testimatedTime= " + estimatedTime);
+                smoothedValue += (estimatedTime/200.0) * ((speedMSec - smoothedValue) / 3.0); //System.out.println("speedRpm= " + speedRpm + "\twheelCpt= " + wheelCpt + "\testimatedTime= " + estimatedTime);
                         // motor.drive(255);
                 wheelCpt = 0;
-                previousTime = System.currentTimeMillis();
 
                 filter.predict(u);
                 // x = A * x + B * u + pNoise
@@ -225,8 +224,8 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
 
 //            double position = filter.getStateEstimation()[0];
                 double velocity = filter.getStateEstimation()[1];
-                lastValue = speedMSec;
-                System.out.println("speedMSec= " + speedMSec + "\tvelocity= " + velocity + "\testimatedTime= " + estimatedTime);
+                lastValue = smoothedValue;
+                System.out.println("speedMSec= " + speedMSec + "\tvelocity= " + velocity + "\tsmoothedValue= " + smoothedValue);
                 final Millisecond now = new Millisecond();
 //            System.out.println("Now = " + now.toString());
                 series.add(new Millisecond(), lastValue);
@@ -235,6 +234,7 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
                     compterrr = 0;
                     motor.drive((int) (Math.random() * 512) - 256);
                 }
+                previousTime = System.currentTimeMillis();
                 //compute PID
 //            motor.drive(100, 1070);
 //            motor.brake();
@@ -259,7 +259,7 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
         if (e.getActionCommand().equals("ADD_DATA")) {
             final Millisecond now = new Millisecond();
             System.out.println("Now = " + now.toString());
-            this.series.add(new Millisecond(), lastValue);
+            series.add(new Millisecond(), lastValue);
         }
     }
 
