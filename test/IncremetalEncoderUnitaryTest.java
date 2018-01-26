@@ -52,7 +52,7 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
      * The most recent value added.
      */
     //to plot the graph
-    static double lastValue = 0.0 ;
+    static double lastValue = 0.0;
 
     /**
      * Constructs a new demonstration application.
@@ -105,8 +105,6 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
         return result;
     }
 
-    
-    
     static GpioPinDigitalInput wheelCoder;
     static boolean wheelCoderUpdated = false;
     static long estimatedTime = 0;
@@ -154,7 +152,7 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
 
 // constant control input, increase velocity by 0.1 m/s per cycle
         RealVector u = new ArrayRealVector(new double[]{0.1d});
-
+        RealVector mNoise = new ArrayRealVector(1);
         ProcessModel pm = new DefaultProcessModel(A, B, Q, x, P0);
         MeasurementModel mm = new DefaultMeasurementModel(H, R);
         KalmanFilter filter = new KalmanFilter(pm, mm);
@@ -204,7 +202,7 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
                 //    motor.brake();
                 pulsePerSecond = (wheelCpt * 1000.0) / (double) estimatedTime;
                 speedRpm = (pulsePerSecond * 60.0) / 20.0;
-                speedMSec = 0.052*speedRpm*010472;
+                speedMSec = 0.052 * speedRpm * 010472;
                 System.out.println("speedRpm= " + speedRpm + "\twheelCpt= " + wheelCpt + "\testimatedTime= " + estimatedTime);
                 // motor.drive(255);
                 wheelCpt = 0;
@@ -214,8 +212,11 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
                 // x = A * x + B * u + pNoise
                 x = A.operate(x).add(B.operate(u));
                 // z = H * x + m_noise
-                
-                RealVector z = H.operate(x);
+                // simulate the measurement
+                mNoise.setEntry(0, speedMSec);
+
+                // z = H * x + m_noise
+                RealVector z = H.operate(x).add(mNoise);
                 filter.correct(z);
 
 //            double position = filter.getStateEstimation()[0];
