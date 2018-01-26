@@ -111,6 +111,7 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
     static long previousTime = 0;
     static final double ANGLE_INCREMENT = Math.PI / 10;
     static int wheelCpt = 0;
+    static double smoothedValue;
 
     public static void main(final String[] args) {
 
@@ -193,7 +194,7 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
         motor.brake();
         double speedRpm, pulsePerSecond, speedMSec;
         motor.drive(255);
-int compterrr=0;
+        int compterrr = 0;
         while (true) {
             if (wheelCoderUpdated) {
                 compterrr++;
@@ -204,8 +205,10 @@ int compterrr=0;
                 pulsePerSecond = (wheelCpt * 1000.0) / (double) estimatedTime;
                 speedRpm = (pulsePerSecond * 60.0) / 20.0;
                 speedMSec = 0.052 * speedRpm * 0.10472;
-                //System.out.println("speedRpm= " + speedRpm + "\twheelCpt= " + wheelCpt + "\testimatedTime= " + estimatedTime);
-                // motor.drive(255);
+
+// If you have a varying frame rate
+                smoothedValue += estimatedTime * (speedMSec - smoothedValue) / 2; //System.out.println("speedRpm= " + speedRpm + "\twheelCpt= " + wheelCpt + "\testimatedTime= " + estimatedTime);
+                        // motor.drive(255);
                 wheelCpt = 0;
                 previousTime = System.currentTimeMillis();
 
@@ -224,14 +227,14 @@ int compterrr=0;
                 double velocity = filter.getStateEstimation()[1];
                 lastValue = speedMSec;
                 System.out.println("speedMSec= " + speedMSec + "\tvelocity= " + velocity + "\testimatedTime= " + estimatedTime);
-final Millisecond now = new Millisecond();
+                final Millisecond now = new Millisecond();
 //            System.out.println("Now = " + now.toString());
-            series.add(new Millisecond(), lastValue);
-            
-            if (compterrr > 100){
-            compterrr=0;
-            motor.drive((int) (Math.random()*512)-256);
-            }
+                series.add(new Millisecond(), lastValue);
+
+                if (compterrr > 100) {
+                    compterrr = 0;
+                    motor.drive((int) (Math.random() * 512) - 256);
+                }
                 //compute PID
 //            motor.drive(100, 1070);
 //            motor.brake();
