@@ -51,7 +51,8 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
     /**
      * The most recent value added.
      */
-    static double lastValue = 0.0;
+    //to plot the graph
+    static double lastValue = 0.0 ;
 
     /**
      * Constructs a new demonstration application.
