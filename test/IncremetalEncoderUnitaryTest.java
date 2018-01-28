@@ -8,6 +8,7 @@ import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import iprobot.helpers.MotorController;
+import iprobot.helpers.TimePlotter;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
@@ -41,69 +42,10 @@ import org.jfree.ui.RefineryUtilities;
  *
  * @author yoann
  */
-public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements ActionListener {
+public class IncremetalEncoderUnitaryTest {
 
-    /**
-     * The time series data.
-     */
-    static TimeSeries series;
-
-    /**
-     * The most recent value added.
-     */
-    //to plot the graph
-    static double lastValue = 0.0;
-
-    /**
-     * Constructs a new demonstration application.
-     *
-     * @param title the frame title.
-     */
-    public IncremetalEncoderUnitaryTest(final String title) {
-
-        super(title);
-        this.series = new TimeSeries("speed", Millisecond.class);
-        final TimeSeriesCollection dataset0 = new TimeSeriesCollection(this.series);
-        final JFreeChart chart = createChart(dataset0);
-
-        final ChartPanel chartPanel = new ChartPanel(chart);
-        final JButton button = new JButton("Add New Data Item");
-        button.setActionCommand("ADD_DATA");
-        button.addActionListener(this);
-
-        final JPanel content = new JPanel(new BorderLayout());
-        content.add(chartPanel);
-        content.add(button, BorderLayout.SOUTH);
-        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
-        setContentPane(content);
-
-    }
-
-    /**
-     * Creates a sample chart.
-     *
-     * @param dataset the dataset.
-     *
-     * @return A sample chart.
-     */
-    private JFreeChart createChart(final XYDataset dataset) {
-        final JFreeChart result = ChartFactory.createTimeSeriesChart(
-                "Dynamic Data Demo",
-                "Time",
-                "Value",
-                dataset,
-                true,
-                true,
-                false
-        );
-        final XYPlot plot = result.getXYPlot();
-        org.jfree.chart.axis.ValueAxis axis = plot.getDomainAxis();
-        axis.setAutoRange(true);
-        axis.setFixedAutoRange(60000.0);  // 60 seconds
-        axis = plot.getRangeAxis();
-        axis.setRange(-1.25, 1.250);
-        return result;
-    }
+   
+    
 
     static GpioPinDigitalInput wheelCoder;
     static boolean wheelCoderUpdated = false;
@@ -115,60 +57,18 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
 
     public static void main(final String[] args) {
 
-        final IncremetalEncoderUnitaryTest demo = new IncremetalEncoderUnitaryTest("Dynamic Data Demo");
-        demo.pack();
-        RefineryUtilities.centerFrameOnScreen(demo);
-        demo.setVisible(true);
+        //create plot
+        TimePlotter plot = new TimePlotter("Dynamic Data Demo");
+        plot.pack();
+        RefineryUtilities.centerFrameOnScreen(plot);
+        plot.setVisible(true);
 
-//    public static void main(String[] args) {
-        // discrete time interval
-        double dt = 0.2d;
-// position measurement noise (meter)
-        double measurementNoise = 10d;
-// acceleration noise (meter/sec^2)
-        double accelNoise = 0.2d;
-
-// A = [ 1 dt ]
-//     [ 0  1 ]
-        RealMatrix A = new Array2DRowRealMatrix(new double[][]{{1, dt}, {0, 1}});
-// B = [ dt^2/2 ]
-//     [ dt     ]
-        RealMatrix B = new Array2DRowRealMatrix(new double[][]{{Math.pow(dt, 2d) / 2d}, {dt}});
-// H = [ 1 0 ]
-        RealMatrix H = new Array2DRowRealMatrix(new double[][]{{1d, 0d}});
-// x = [ 0 0 ]
-        RealVector x = new ArrayRealVector(new double[]{0, 0});
-
-        RealMatrix tmp = new Array2DRowRealMatrix(new double[][]{
-            {Math.pow(dt, 4d) / 4d, Math.pow(dt, 3d) / 2d},
-            {Math.pow(dt, 3d) / 2d, Math.pow(dt, 2d)}});
-// Q = [ dt^4/4 dt^3/2 ]
-//     [ dt^3/2 dt^2   ]
-        RealMatrix Q = tmp.scalarMultiply(Math.pow(accelNoise, 2));
-// P0 = [ 1 1 ]
-//      [ 1 1 ]
-        RealMatrix P0 = new Array2DRowRealMatrix(new double[][]{{1, 1}, {1, 1}});
-// R = [ measurementNoise^2 ]
-        RealMatrix R = new Array2DRowRealMatrix(new double[]{Math.pow(measurementNoise, 2)});
-
-// constant control input, increase velocity by 0.1 m/s per cycle
-        RealVector u = new ArrayRealVector(new double[]{0.1d});
-        RealVector mNoise = new ArrayRealVector(1);
-        ProcessModel pm = new DefaultProcessModel(A, B, Q, x, P0);
-        MeasurementModel mm = new DefaultMeasurementModel(H, R);
-        KalmanFilter filter = new KalmanFilter(pm, mm);
-
-//        RandomGenerator rand = new JDKRandomGenerator();
-//        RealVector tmpPNoise = new ArrayRealVector(new double[]{Math.pow(dt, 2d) / 2d, dt});
-//        RealVector mNoise = new ArrayRealVector(1);
         // create gpio controller
         final GpioController gpio = GpioFactory.getInstance();
         MotorController motor = new MotorController(gpio, RaspiPin.GPIO_04, RaspiPin.GPIO_02, RaspiPin.GPIO_01, RaspiPin.GPIO_03);
 
-        // provision gpio pin #02 as an input pin with its internal pull down resistor enabled
-        wheelCoder = gpio.provisionDigitalInputPin(RaspiPin.GPIO_25, PinPullResistance.PULL_DOWN);        // set shutdown state for this input pin
-        wheelCoder.setShutdownOptions(true);
-        System.out.println("WheelEncoder setup");
+        // set wheel coder pin
+        wheelCoder = gpio.provisionDigitalInputPin(RaspiPin.GPIO_25, PinPullResistance.PULL_DOWN);    
 
         // create and register gpio pin listener
         estimatedTime = System.currentTimeMillis();
@@ -176,21 +76,18 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
             if (event.getEdge() == PinEdge.RISING) {
                 wheelCpt++;
             }
-//            motor.brake();
             estimatedTime = System.currentTimeMillis() - previousTime;
             if (estimatedTime > 200 && !wheelCoderUpdated) {
                 wheelCoderUpdated = true;
             }
-
-//            motor.drive(255);
         });
 
         //PID 
-        double error_prior = 0;
-        double integral = 0;
-        double kP = 10;
-        double kI = 0.01;
-        double kD = 1;
+//        double error_prior = 0;
+//        double integral = 0;
+//        double kP = 10;
+//        double kI = 0.01;
+//        double kD = 1;
         motor.brake();
         double speedRpm, pulsePerSecond, speedMSec;
         motor.drive(255);
@@ -211,24 +108,8 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
                         // motor.drive(255);
                 wheelCpt = 0;
 
-                filter.predict(u);
-                // x = A * x + B * u + pNoise
-                x = A.operate(x).add(B.operate(u));
-                // z = H * x + m_noise
-                // simulate the measurement
-                mNoise.setEntry(0, speedMSec);
-
-                // z = H * x + m_noise
-                RealVector z = H.operate(x).add(mNoise);
-                filter.correct(z);
-
-//            double position = filter.getStateEstimation()[0];
-                double velocity = filter.getStateEstimation()[1];
-                lastValue = smoothedValue;
-                System.out.println("speedMSec= " + speedMSec + "\tvelocity= " + velocity + "\tsmoothedValue= " + smoothedValue);
-                final Millisecond now = new Millisecond();
-//            System.out.println("Now = " + now.toString());
-                series.add(new Millisecond(), lastValue);
+                System.out.println("speedMSec= " + speedMSec + "\tsmoothedValue= " + smoothedValue);
+                plot.updatePlot(smoothedValue);
 
                 if (compterrr > 100) {
                     compterrr = 0;
@@ -251,16 +132,6 @@ public class IncremetalEncoderUnitaryTest extends ApplicationFrame implements Ac
             }
         }
 
-    }
-
-    @Override
-    public void actionPerformed(java.awt.event.ActionEvent e) {
-
-        if (e.getActionCommand().equals("ADD_DATA")) {
-            final Millisecond now = new Millisecond();
-            System.out.println("Now = " + now.toString());
-            series.add(new Millisecond(), lastValue);
-        }
     }
 
 }
