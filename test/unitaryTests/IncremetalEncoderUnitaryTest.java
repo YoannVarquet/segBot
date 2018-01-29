@@ -10,7 +10,7 @@ import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import iprobot.helpers.MotorController;
-import iprobot.helpers.TimePlotter;
+import iprobot.helpers.CustomTimePlotter;
 import org.jfree.ui.RefineryUtilities;
 
 /*
@@ -38,10 +38,9 @@ public class IncremetalEncoderUnitaryTest {
     public static void main(final String[] args) {
 
         //create plot
-        TimePlotter plot = new TimePlotter("Dynamic Live Data","2D");
-        plot.pack();
-        RefineryUtilities.centerFrameOnScreen(plot);
-        plot.setVisible(true);
+        CustomTimePlotter p1 = new CustomTimePlotter("Dynamic Live Data","2D");
+        CustomTimePlotter p2 = new CustomTimePlotter("Dynamic Live Data","1D");
+        CustomTimePlotter.createAndShowGUI(p2,p1);
 
         // create gpio controller
         final GpioController gpio = GpioFactory.getInstance();
@@ -89,7 +88,8 @@ public class IncremetalEncoderUnitaryTest {
                 wheelCpt = 0;
 
                 System.out.println("speedMSec= " + speedMSec + "\tsmoothedValue= " + smoothedValue);
-                plot.updatePlot(speedMSec, smoothedValue);
+                p1.updatePlot(speedMSec, smoothedValue);
+                p2.updatePlot(smoothedValue);
 
                 if (compterrr > 100) {
                     compterrr = 0;
