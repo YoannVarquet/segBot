@@ -43,16 +43,16 @@ public class CustomTimePlotter extends JPanel {
     public CustomTimePlotter(final String title, String type) {
 
 //        super(title);
-        serie = new TimeSeries("", Millisecond.class);
-        final TimeSeriesCollection dataset = new TimeSeriesCollection(serie);
         final JFreeChart chart;
         if (type.contains("2")) {
-            serie2 = new TimeSeries("", Millisecond.class);
-            serie1 = new TimeSeries("", Millisecond.class);
+            serie2 = new TimeSeries("filtered", Millisecond.class);
+            serie1 = new TimeSeries("raw", Millisecond.class);
             final TimeSeriesCollection dataset0 = new TimeSeriesCollection(serie1);
             final TimeSeriesCollection dataset1 = new TimeSeriesCollection(serie2);
             chart = createChart2D(dataset0, dataset1);
         } else {
+        serie = new TimeSeries("", Millisecond.class);
+            final TimeSeriesCollection dataset = new TimeSeriesCollection(serie);
             chart = createChart(dataset);
         }
 
@@ -72,22 +72,6 @@ public class CustomTimePlotter extends JPanel {
         serie2.addOrUpdate(new Millisecond(), value2);
     }
 
-    public CustomTimePlotter() {
-        JLabel label1 = new JLabel("Tell me something");
-        label1.setToolTipText("Click if you need help");
-
-        add(label1);
-        JButton button1 = new JButton("OK");
-        button1.setBorderPainted(true);
-        button1.setContentAreaFilled(true);
-        button1.setToolTipText("This is my button");
-        add(button1);
-        JTextField txtField = new JTextField("Type here", 15);
-
-        txtField.setToolTipText("It's a field");
-        add(txtField);
-    }
-
     private JFreeChart createChart(final XYDataset dataset) {
         final JFreeChart result = ChartFactory.createTimeSeriesChart(
                 "Dynamic Data Demo",
@@ -103,8 +87,8 @@ public class CustomTimePlotter extends JPanel {
         axis.setAutoRange(true);
         axis.setFixedAutoRange(60000.0);  // 60 seconds
         axis = plot.getRangeAxis();
-//        axis.setRange(-1.25, 1.250);
-        axis.setAutoRange(true);
+        axis.setRange(-1.25, 1.250);
+//        axis.setAutoRange(true);
         return result;
     }
 
@@ -130,14 +114,14 @@ public class CustomTimePlotter extends JPanel {
         axis.setAutoRange(true);
         axis.setFixedAutoRange(60000.0);  // 60 seconds
         axis = plot.getRangeAxis();
-//        axis.setRange(-1.25, 1.250);
-        axis.setAutoRange(true);
+        axis.setRange(-1.25, 1.250);
+//        axis.setAutoRange(true);
         return result;
     }
 
     public static void createAndShowGUI(CustomTimePlotter p1, CustomTimePlotter p2) {
-        timePlot2 = p1;
-        timePlot = p2;
+        timePlot = p1;
+        timePlot2 = p2;
 //         timePlot = new CustomTimePlotter();
 //         timePlot2 = new CustomTimePlotter();
         f = new JFrame("Demo TimePlotter");
@@ -158,9 +142,9 @@ public class CustomTimePlotter extends JPanel {
 //            @Override
 //            public void run() {
 
-        CustomTimePlotter p1 = new CustomTimePlotter("Dynamic Live Data","2D");
-        CustomTimePlotter p2 = new CustomTimePlotter("Dynamic Live Data","1D");
-        createAndShowGUI(p2,p1);
+        CustomTimePlotter p1 = new CustomTimePlotter("Dynamic Live Data", "2D");
+        CustomTimePlotter p2 = new CustomTimePlotter("Dynamic Live Data", "1D");
+        createAndShowGUI(p2, p1);
 
 //            }
 //        });

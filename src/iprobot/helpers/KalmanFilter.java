@@ -29,10 +29,10 @@ public class KalmanFilter {
 
 // A = [ 1 dt ]
 //     [ 0  1 ]
-        RealMatrix A = new Array2DRowRealMatrix(new double[][]{{1, dt}, {0, 1}});
+        RealMatrix A = new Array2DRowRealMatrix(new double[][]{{1, 0}, {0, 1}});
 // B = [ dt^2/2 ]
 //     [ dt     ]
-        RealMatrix B = new Array2DRowRealMatrix(new double[][]{{Math.pow(dt, 2d) / 2d}, {dt}});
+        RealMatrix B = new Array2DRowRealMatrix(new double[][]{{0}, {0}});
 // H = [ 1 0 ]
         RealMatrix H = new Array2DRowRealMatrix(new double[][]{{1d, 0d}});
 // x = [ 0 0 ]
@@ -43,15 +43,15 @@ public class KalmanFilter {
             {Math.pow(dt, 3d) / 2d, Math.pow(dt, 2d)}});
 // Q = [ dt^4/4 dt^3/2 ]
 //     [ dt^3/2 dt^2   ]
-        RealMatrix Q = tmp.scalarMultiply(Math.pow(accelNoise, 2));
+        RealMatrix Q = new Array2DRowRealMatrix(new double[][]{{0, 0}, {0, 0}});
 // P0 = [ 1 1 ]
 //      [ 1 1 ]
         RealMatrix P0 = new Array2DRowRealMatrix(new double[][]{{1, 1}, {1, 1}});
 // R = [ measurementNoise^2 ]
-        RealMatrix R = new Array2DRowRealMatrix(new double[]{Math.pow(measurementNoise, 2)});
+        RealMatrix R = new Array2DRowRealMatrix(new double[]{0.01d});
 
 // constant control input, increase velocity by 0.1 m/s per cycle
-        RealVector u = new ArrayRealVector(new double[]{0.1d});
+        RealVector u = new ArrayRealVector(new double[]{1d});
         RealVector mNoise = new ArrayRealVector(1);
         ProcessModel pm = new DefaultProcessModel(A, B, Q, x, P0);
         MeasurementModel mm = new DefaultMeasurementModel(H, R);
@@ -60,10 +60,10 @@ public class KalmanFilter {
 //        RandomGenerator rand = new JDKRandomGenerator();
 //        RealVector tmpPNoise = new ArrayRealVector(new double[]{Math.pow(dt, 2d) / 2d, dt});
 //        RealVector mNoise = new ArrayRealVector(1);
-        double update(double speedMSec){
+        public double update(double speedMSec){
                         filter.predict(u);
                 // x = A * x + B * u + pNoise
-                x = A.operate(x).add(B.operate(u));
+                x = A.operate(x);
                 // z = H * x + m_noise
                 // simulate the measurement
                 mNoise.setEntry(0, speedMSec);

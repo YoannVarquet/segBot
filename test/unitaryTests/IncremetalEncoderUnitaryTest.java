@@ -11,6 +11,7 @@ import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import iprobot.helpers.MotorController;
 import iprobot.helpers.CustomTimePlotter;
+import iprobot.helpers.KalmanFilter;
 import org.jfree.ui.RefineryUtilities;
 
 /*
@@ -33,14 +34,15 @@ public class IncremetalEncoderUnitaryTest {
     static long previousTime = 0;
     static final double ANGLE_INCREMENT = Math.PI / 10;
     static int wheelCpt = 0;
-    static double smoothedValue;
+    static double smoothedValue=0.75;
+    static double smoothedValue2=0.75;
 
     public static void main(final String[] args) {
 
         //create plot
-        CustomTimePlotter p1 = new CustomTimePlotter("Dynamic Live Data","2D");
-        CustomTimePlotter p2 = new CustomTimePlotter("Dynamic Live Data","1D");
-        CustomTimePlotter.createAndShowGUI(p2,p1);
+        CustomTimePlotter p1 = new CustomTimePlotter("Dynamic Live Data","1D");
+        CustomTimePlotter p2 = new CustomTimePlotter("Dynamic Live Data","2D");
+        CustomTimePlotter.createAndShowGUI(p1,p2);
 
         // create gpio controller
         final GpioController gpio = GpioFactory.getInstance();
@@ -69,8 +71,9 @@ public class IncremetalEncoderUnitaryTest {
 //        double kD = 1;
         motor.brake();
         double speedRpm, pulsePerSecond, speedMSec;
-        motor.drive(255);
+        motor.drive(55);
         int compterrr = 0;
+        KalmanFilter kf = new KalmanFilter();
         while (true) {
             if (wheelCoderUpdated) {
                 compterrr++;
@@ -81,15 +84,19 @@ public class IncremetalEncoderUnitaryTest {
                 pulsePerSecond = (wheelCpt * 1000.0) / (double) estimatedTime;
                 speedRpm = (pulsePerSecond * 60.0) / 20.0;
                 speedMSec = 0.052 * speedRpm * 0.10472;
+                if(speedMSec>1.25)speedMSec=1.25;
+                if(speedMSec<-1.25)speedMSec=-1.25;
 
 // If you have a varying frame rate
-                smoothedValue += (estimatedTime/200.0) * ((speedMSec - smoothedValue) / 3.0); //System.out.println("speedRpm= " + speedRpm + "\twheelCpt= " + wheelCpt + "\testimatedTime= " + estimatedTime);
+                smoothedValue += (estimatedTime/200.0) * ((speedMSec - smoothedValue) / 1.5);
+                smoothedValue2 += (estimatedTime/200.0) * ((smoothedValue - smoothedValue2) / 1.5); //System.out.println("speedRpm= " + speedRpm + "\twheelCpt= " + wheelCpt + "\testimatedTime= " + estimatedTime);
                         // motor.drive(255);
                 wheelCpt = 0;
 
-                System.out.println("speedMSec= " + speedMSec + "\tsmoothedValue= " + smoothedValue);
-                p1.updatePlot(speedMSec, smoothedValue);
-                p2.updatePlot(smoothedValue);
+                final double kfValue = kf.update(speedMSec);
+                System.out.println("speedMSec= " + speedMSec + "\tsmoothedValue= " + smoothedValue+ "\tkfValue= " + kfValue);
+                p1.updatePlot(speedMSec);
+                p2.updatePlot(smoothedValue, smoothedValue2);
 
                 if (compterrr > 100) {
                     compterrr = 0;
