@@ -1,3 +1,5 @@
+package unitaryTests;
+
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
@@ -9,28 +11,6 @@ import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import iprobot.helpers.MotorController;
 import iprobot.helpers.TimePlotter;
-import java.awt.BorderLayout;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import org.apache.commons.math3.filter.DefaultMeasurementModel;
-import org.apache.commons.math3.filter.DefaultProcessModel;
-import org.apache.commons.math3.filter.KalmanFilter;
-import org.apache.commons.math3.filter.MeasurementModel;
-import org.apache.commons.math3.filter.ProcessModel;
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.ArrayRealVector;
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.data.time.Millisecond;
-import org.jfree.data.time.TimeSeries;
-import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 /*
@@ -58,7 +38,7 @@ public class IncremetalEncoderUnitaryTest {
     public static void main(final String[] args) {
 
         //create plot
-        TimePlotter plot = new TimePlotter("Dynamic Data Demo");
+        TimePlotter plot = new TimePlotter("Dynamic Live Data","2D");
         plot.pack();
         RefineryUtilities.centerFrameOnScreen(plot);
         plot.setVisible(true);
@@ -109,7 +89,7 @@ public class IncremetalEncoderUnitaryTest {
                 wheelCpt = 0;
 
                 System.out.println("speedMSec= " + speedMSec + "\tsmoothedValue= " + smoothedValue);
-                plot.updatePlot(smoothedValue);
+                plot.updatePlot(speedMSec, smoothedValue);
 
                 if (compterrr > 100) {
                     compterrr = 0;
