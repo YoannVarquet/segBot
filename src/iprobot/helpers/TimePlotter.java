@@ -6,8 +6,10 @@
 package iprobot.helpers;
 
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -30,7 +32,7 @@ import org.jfree.util.ShapeUtilities;
  *
  * @author root
  */
-public class TimePlotter extends ApplicationFrame {
+public class TimePlotter extends JPanel {
 
     /**
      * The time series data.
@@ -39,7 +41,7 @@ public class TimePlotter extends ApplicationFrame {
 
     public TimePlotter(final String title, String type) {
 
-        super(title);
+//        super(title);
         serie1 = new TimeSeries("", Millisecond.class);
         final TimeSeriesCollection dataset0 = new TimeSeriesCollection(serie1);
         final JFreeChart chart;
@@ -55,7 +57,7 @@ public class TimePlotter extends ApplicationFrame {
         final JPanel content = new JPanel(new BorderLayout());
         content.add(chartPanel);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
-        setContentPane(content);
+//        setContentPane(content);
     }
 
     public void updatePlot(double value) {
@@ -84,6 +86,7 @@ public class TimePlotter extends ApplicationFrame {
         axis = plot.getRangeAxis();
 //        axis.setRange(-1.25, 1.250);
         axis.setAutoRange(true);
+        axis.setFixedAutoRange(100);
         return result;
     }
 
@@ -117,9 +120,13 @@ public class TimePlotter extends ApplicationFrame {
     public static void main(final String[] args) {
         //create plot
         TimePlotter plot = new TimePlotter("Dynamic live Data", "2D");
-        plot.pack();
-        RefineryUtilities.centerFrameOnScreen(plot);
-        plot.setVisible(true);
+        JFrame f = new JFrame("Custom plot");
+        f.setLayout(new GridLayout(2, 0));
+        f.add(plot);
+        f.add( new TimePlotter("Dynamic live Data","1d"));
+        f.pack();
+        RefineryUtilities.centerFrameOnScreen(f);
+        f.setVisible(true);
         int cpt=0;
         while (true) {
 
