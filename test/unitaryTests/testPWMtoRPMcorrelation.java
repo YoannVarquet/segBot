@@ -9,7 +9,6 @@ import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import iprobot.helpers.MotorController;
-import iprobot.helpers.CustomTimePlotter;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -59,9 +58,10 @@ public class testPWMtoRPMcorrelation {
             }
         });
 
-        double speedRPM = 0;
-        int speedPWM = 0;
-        while (speedPWM < 256) {
+        double speedRPM;
+        int speedPWM = 255;
+        motor.drive(speedPWM);
+        while (speedPWM > 0) {
             int nbValue = 0;
 
             double[] speedsRPM = new double[30];
@@ -77,11 +77,15 @@ public class testPWMtoRPMcorrelation {
                     previousTime = System.currentTimeMillis();
                 }
             }
-            double avg=0.0;
-            for(double i:speedsRPM){avg+=i;}
-            avg/=30.0;
-            System.out.println("PWM = "+ speedPWM + "\tRPM = "+ avg);
-            speedPWM++;
+            double avg = 0.0;
+            for (double i : speedsRPM) {
+                avg += i;
+            }
+            avg /= 30.0;
+            System.out.println("PWM = " + speedPWM + "\tRPM = " + avg);
+            speedPWM--;
+
+            motor.drive(speedPWM);
         }
 
     }
@@ -114,13 +118,14 @@ public class testPWMtoRPMcorrelation {
         wheelCoderUpdated = false;
         return speedMSec;
     }
+
     public static double computeRPM() {
         double pulsePerSecond;
         double speedRpm;
         //compute RPM
         pulsePerSecond = (wheelCpt * 1000.0) / (double) estimatedTime;
         speedRpm = (pulsePerSecond * 60.0) / 20.0;
-        
+
         if (speedRpm > 230) {
             speedRpm = 230;
         }
