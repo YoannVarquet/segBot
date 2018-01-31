@@ -5,7 +5,6 @@
  */
 package iprobot.helpers;
 
-import java.awt.BorderLayout;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -18,7 +17,7 @@ import org.jfree.ui.tabbedui.VerticalLayout;
  * @author root
  */
 public class PanelHolder {
-
+    
     public PanelHolder(JPanel... panels) {
         createAndShowGUI(panels);
     }
@@ -28,6 +27,7 @@ public class PanelHolder {
      */
     static public JFrame f;
     static public boolean frameCreated = false;
+
     public static void createAndShowGUI(JPanel... panels) {
         f = new JFrame("JFrame");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -40,18 +40,19 @@ public class PanelHolder {
 //        frame.setLocationRelativeTo(null);
         RefineryUtilities.centerFrameOnScreen(f);
         f.setVisible(true);
+        f.setResizable(true);
         frameCreated = true;
     }
-
+    
     public static void main(final String[] args) {
 //        SwingUtilities.invokeLater(new Runnable() {
 //            @Override
 //            public void run() {
 
-        CustomTimePlotterPanel p1 = new CustomTimePlotterPanel(1,-1.5,1.5,"sin");
-        CustomTimePlotterPanel p2 = new CustomTimePlotterPanel(3,-1.5,1.5,"sin","-sin","cos");
+        CustomTimePlotterPanel p1 = new CustomTimePlotterPanel(1, -1.5, 1.5, "sin");
+        CustomTimePlotterPanel p2 = new CustomTimePlotterPanel(3, -1.5, 1.5, "sin", "-sin", "cos");
         
-        PanelHolder ph= new PanelHolder(p1,p2);//createAndShowGUI(p1, p2);
+        PanelHolder ph = new PanelHolder(p1, p2);//createAndShowGUI(p1, p2);
 
 //            }
 //        });
@@ -66,10 +67,10 @@ public class PanelHolder {
                 } catch (InterruptedException ex) {
                     Logger.getLogger(PanelHolder.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
+                
             }
         }
-
+        
     }
-
+    
 }

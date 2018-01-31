@@ -5,9 +5,7 @@
  */
 package iprobot.helpers;
 
-import java.awt.Component;
 import java.util.ArrayList;
-import javafx.util.Pair;
 import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -76,7 +74,7 @@ public class CustomTimePlotterPanel extends JPanel {
 
             org.jfree.chart.axis.ValueAxis axis = plot.getDomainAxis();
             axis.setAutoRange(true);
-            axis.setFixedAutoRange(60000.0);  // 60 seconds
+            axis.setFixedAutoRange(20000.0);  // 60 seconds
             axis = plot.getRangeAxis();
             axis.setRange(rangeMin, rangeMax);
         }

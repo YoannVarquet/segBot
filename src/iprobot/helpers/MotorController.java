@@ -5,9 +5,8 @@ package iprobot.helpers;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
-
 import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioPin;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.GpioPinPwmOutput;
 import com.pi4j.io.gpio.Pin;
@@ -79,7 +78,15 @@ public class MotorController {
         In1pin = gpio.provisionDigitalOutputPin(in1pin, PinState.LOW);
         In2pin = gpio.provisionDigitalOutputPin(in2pin, PinState.LOW);
         PWMpin = gpio.provisionPwmOutputPin(pWMpin);
-        STBYpin = gpio.provisionDigitalOutputPin(sTBYpin, PinState.LOW);
+        boolean provisionStandByPin = true;
+        for (GpioPin p : gpioController.getProvisionedPins()) {
+            if (sTBYpin.getName().equals(p.getName())) {
+                provisionStandByPin = false;
+            }
+        }
+        if (provisionStandByPin) {
+            STBYpin = gpio.provisionDigitalOutputPin(sTBYpin, PinState.LOW);
+        }
         com.pi4j.wiringpi.Gpio.pwmSetMode(com.pi4j.wiringpi.Gpio.PWM_MODE_MS);
         com.pi4j.wiringpi.Gpio.pwmSetRange(255);
         com.pi4j.wiringpi.Gpio.pwmSetClock(500);
@@ -105,7 +112,10 @@ public class MotorController {
         if (Math.abs(speed) > PWMRange) {
             speed = (int) (Math.signum(speed) * PWMRange);
         }
-        STBYpin.setState(PinState.HIGH);
+        if (STBYpin != null) // can be null as the standby pin is shared to several motor, only one of them can control the standby pin
+        {
+            STBYpin.setState(PinState.HIGH);
+        }
         if (speed >= 0) {
             forward(speed);
         } else {
@@ -136,7 +146,7 @@ public class MotorController {
 
     }
 
-    public void   brake() {
+    public void brake() {
         In2pin.setState(PinState.HIGH);
         In1pin.setState(PinState.HIGH);
         PWMpin.setPwm(0);
