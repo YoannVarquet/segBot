@@ -8,10 +8,8 @@ import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
+import iprobot.helpers.CustomTimePlotterPanel;
 import iprobot.helpers.MotorController;
-import iprobot.helpers.CustomTimePlotter;
-import iprobot.helpers.KalmanFilter;
-import org.jfree.ui.RefineryUtilities;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -40,12 +38,14 @@ public class IncremetalEncoderUnitaryTest {
     static double kI = 0.01;
     static double kD = 1, bias = 0.01;
 
+    static double m = 0.7109164650680;
+    static double b = -15.4586700193400;
+
     public static void main(final String[] args) {
 
         //create plot
-        CustomTimePlotter p1 = new CustomTimePlotter("Dynamic Live Data", "1D");
-        CustomTimePlotter p2 = new CustomTimePlotter("Dynamic Live Data", "2D");
-        CustomTimePlotter.createAndShowGUI(p1, p2);
+        CustomTimePlotterPanel p1 = new CustomTimePlotterPanel(2,-256,+256,"desiredSpeed","smoothedValue", "speedRpm");
+//        CustomTimePlotterPanel p2 = new CustomTimePlotterPanel("Dynamic Live Data", "2D");
 
         // create gpio controller
         final GpioController gpio = GpioFactory.getInstance();
@@ -76,18 +76,18 @@ public class IncremetalEncoderUnitaryTest {
         while (true) {
             if (wheelCoderUpdated) {
                 //compute RPM
-                speedMSec = computeRpm();
+                speedRpm = computeRpm();
                 //low pass filter on the speed (filters the noise)
-                smoothedValue += (estimatedTime / 200.0) * ((speedMSec - smoothedValue) / 1.5);
+                smoothedValue += (estimatedTime / 200.0) * ((speedRpm - smoothedValue) / 1.5);
 
                 //display values
-                System.out.println("speedMSec= " + speedMSec + "\tsmoothedValue= " + smoothedValue);
-                p1.updatePlot(desiredSpeed);
-                p2.updatePlot(smoothedValue, speedMSec);
-                
+                System.out.println("speedRpm= " + speedRpm + "\tsmoothedValue= " + smoothedValue);
+//                p2.updatePlot(desiredSpeed);
+                p1.updatePlot(desiredSpeed,smoothedValue, speedRpm);
+
                 //compute PID & correct motor drive
-                double commande = computePID(desiredSpeed);
-//                motor.drive(commande);
+                double commande = computePID(PWMtoRPM(desiredSpeed));
+                motor.drive(RPMtoPWM(commande));
 
                 //change speed when error null ou little
                 if (error < 0.2d) {
@@ -101,7 +101,7 @@ public class IncremetalEncoderUnitaryTest {
 
     public static double computePID(double desiredSpeed) {
         //compute PID
-        error = desiredSpeed - smoothedValue;
+        error =   desiredSpeed - smoothedValue;
         integral = integral + (error * estimatedTime);
         derivative = (error - error_prior) / estimatedTime;
         error_prior = error;
@@ -118,16 +118,24 @@ public class IncremetalEncoderUnitaryTest {
         //compute RPM
         pulsePerSecond = (wheelCpt * 1000.0) / (double) estimatedTime;
         speedRpm = (pulsePerSecond * 60.0) / 20.0;
-        speedMSec = 0.052 * speedRpm * 0.10472;
-        if (speedMSec > 1.25) {
-            speedMSec = 1.25;
-        }
-        if (speedMSec < -1.25) {
-            speedMSec = -1.25;
-        }
+//        speedMSec = 0.052 * speedRpm * 0.10472;
+//        if (speedMSec > 1.25) {
+//            speedMSec = 1.25;
+//        }
+//        if (speedMSec < -1.25) {
+//            speedMSec = -1.25;
+//        }
         wheelCpt = 0;
         wheelCoderUpdated = false;
-        return speedMSec;
+        return speedRpm;
+    }
+
+    public static double PWMtoRPM(int pwm) {
+        return (m * pwm + b);
+    }
+
+    public static int RPMtoPWM(double rpm) {
+        return (int) Math.round((rpm - b) / m);
     }
 
 }
