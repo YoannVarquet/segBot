@@ -86,12 +86,12 @@ public class IncremetalEncoderUnitaryTest {
                 smoothedValue += (estimatedTime / 200.0) * ((speedRpm - smoothedValue) / 1.5);
 
                 //display values
+                final double desiredSpeedRPM = PWMtoRPM(desiredSpeed);
                 System.out.println(
-                        "desiredSpeed= " + desiredSpeed
+                        "desiredSpeed= " + desiredSpeedRPM
                         + "\tspeedRpm= " + String.format("%1.3f", speedRpm)
                         + "\tsmoothedValue= " + String.format("%1.3f", smoothedValue));
 //                p2.updatePlot(desiredSpeed);
-                final double desiredSpeedRPM = PWMtoRPM(desiredSpeed);
                 p1.updatePlot(desiredSpeedRPM, smoothedValue, speedRpm);
 
                 //compute PID & correct motor drive
