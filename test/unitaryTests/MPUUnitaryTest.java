@@ -44,8 +44,9 @@ public class MPUUnitaryTest {
 //                gy = (((int) buffer[10]) << 8) | buffer[11];
 //                gz = (((int) buffer[12]) << 8) | buffer[13];
                 System.out.println("ax:" + ax +  "\tgx:" + gx + "\t");
+                Thread.sleep(60);
 
-            } catch (IOException ex) {
+            } catch (IOException | InterruptedException ex) {
                 Logger.getLogger(MPUUnitaryTest.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
