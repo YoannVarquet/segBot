@@ -25,17 +25,8 @@ public class testPWMtoRPMcorrelation {
     static boolean wheelCoderUpdated = false;
     static long estimatedTime = 0;
     static long previousTime = 0;
-    static final double ANGLE_INCREMENT = Math.PI / 10;
     static int wheelCpt = 0;
     static double smoothedValue = 0.75;
-//PID 
-    static double error = 1;
-    static double error_prior = 0;
-    static double integral = 0;
-    static double derivative = 0;
-    static double kP = 10;
-    static double kI = 0.01;
-    static double kD = 1, bias = 0.01;
 
     public static void main(final String[] args) {
 
@@ -88,35 +79,6 @@ public class testPWMtoRPMcorrelation {
             motor.drive(speedPWM);
         }
 
-    }
-
-    public static double computePID(double speedPWM) {
-        //compute PID
-        error = speedPWM - smoothedValue;
-        integral = integral + (error * estimatedTime);
-        derivative = (error - error_prior) / estimatedTime;
-        error_prior = error;
-        return kP * error + kI * integral + kD * derivative + bias;
-
-    }
-
-    public static double computeMSec() {
-        double pulsePerSecond;
-        double speedRpm;
-        double speedMSec;
-        //compute RPM
-        pulsePerSecond = (wheelCpt * 1000.0) / (double) estimatedTime;
-        speedRpm = (pulsePerSecond * 60.0) / 20.0;
-        speedMSec = 0.052 * speedRpm * 0.10472;
-        if (speedMSec > 1.25) {
-            speedMSec = 1.25;
-        }
-        if (speedMSec < -1.25) {
-            speedMSec = -1.25;
-        }
-        wheelCpt = 0;
-        wheelCoderUpdated = false;
-        return speedMSec;
     }
 
     public static double computeRPM() {
