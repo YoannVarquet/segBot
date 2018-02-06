@@ -78,7 +78,7 @@ public final class MPU6050 {
      * @return True if connection is valid, false otherwise
      */
     public boolean testConnection() {
-        return getDeviceID() == 0x34;
+        return getDeviceID() == 0x68;
     }
 
     // AUX_VDDIO register (InvenSense demo code calls this RA_*G_OFFS_TC)
@@ -2387,9 +2387,9 @@ public final class MPU6050 {
     public int[] getAcceleration() {
         int[] data = new int[3];
         buffer = I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_ACCEL_XOUT_H, 6);
-        data[0] = (((int) buffer[0]) << 8) | buffer[1]; //ax
-        data[1] = (((int) buffer[2]) << 8) | buffer[3];//ay
-        data[2] = (((int) buffer[4]) << 8) | buffer[5];//az
+        data[0] = (((int) buffer[0]) << 8) | buffer[1]+32767; //ax
+        data[1] = (((int) buffer[2]) << 8) | buffer[3]+32767;//ay
+        data[2] = (((int) buffer[4]) << 8) | buffer[5]+32767;//az
         return data;
     }
 
@@ -2478,9 +2478,9 @@ public final class MPU6050 {
     public int[] getRotation() {
         int[] data = new int[3];
         buffer = I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_GYRO_XOUT_H, 6);
-        data[0] = (((int) buffer[0]) << 8) | buffer[1]; //ax
-        data[1] = (((int) buffer[2]) << 8) | buffer[3];//ay
-        data[2] = (((int) buffer[4]) << 8) | buffer[5];//az
+        data[0] = (((int) buffer[0]) << 8) | buffer[1]+32767; //ax
+        data[1] = (((int) buffer[2]) << 8) | buffer[3]+32767;//ay
+        data[2] = (((int) buffer[4]) << 8) | buffer[5]+32767;//az
         return data;
     }
 

@@ -39,12 +39,16 @@ public class I2CHelper {
     }
     
     public int readBits(int regAddr, int bitNum, int length){
+        bitNum=7-bitNum;
         try {
             int b = device.read(regAddr);
+            System.out.println("iprobot.helpers.I2CHelper.readBits(): device.read("+String.format("0x%02X", regAddr)+"): "+String.format("0x%02X", b)+" ("+String.format("0b%8s", Integer.toBinaryString(b).replace(' ','0'))+")");
             for(int i = 0 ; i<8 ; i++)
             {
                 if(i<bitNum | i>bitNum+length)
-                    b &= ~(1 << bitNum+i);
+                    b &= ~(1 << bitNum+i);           
+                System.out.println("iprobot.helpers.I2CHelper.readBits(): device.read("+String.format("0x%02X", regAddr)+"): "+String.format("0x%02X", b)+" ("+String.format("%8s", Integer.toBinaryString(b).replace(' ','0'))+")");
+
             }
             return b;
         } catch (IOException ex) {
@@ -84,23 +88,23 @@ public class I2CHelper {
     }
     
     byte[] readBytes_b(int regAddr, int length){
-            byte[] data = new byte[length];
-            byte[] data2 = new byte[length];
+//            byte[] data = new byte[length];
+//            byte[] data2 = new byte[length];
             byte buffer[] = new byte[length];
         try {
             device.read(regAddr, buffer, 0, length);
-            
-            for (int i = 0; i < length; i++) {
-                data[i] = (byte) readByte(regAddr + i);
-                data2[i] =  buffer[i];
-                System.out.println("data :" + data[i] + "data2 :" + data[i]);
-            }
+//            
+//            for (int i = 0; i < length; i++) {
+//                data[i] = (byte) readByte(regAddr + i);
+//                data2[i] =  buffer[i];
+////                System.out.println("data :" + data[i] + "data2 :" + data[i]);
+//            }
             
         } catch (IOException ex) {
             Logger.getLogger(I2CHelper.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-            return data;
+            return buffer;
     }
 
     void writeByte(int regAddr, byte val)  {
@@ -136,13 +140,14 @@ public class I2CHelper {
     void writeBits(int regAddr, int bitNum, int length, byte val)  {
         try {
             byte b = (byte) readByte(regAddr);
-            for (int i = 0; i < length; i++) {
-                if ((val&(1 << bitNum+i)) == 0) {
-                    b &= ~(1 << bitNum+i);
-                } else {
-                    b |= (1 << bitNum+i);
-                }
-            }
+//            for (int i = 0; i < length; i++) {
+//                if ((val&(1 << bitNum+i)) == 0) {
+//                    b &= ~(1 << bitNum+i);
+//                } else {
+//                    b |= (1 << bitNum+i);
+//                }
+//            }
+b|=val;
             device.write(regAddr, b);
         } catch (IOException ex) {
             Logger.getLogger(I2CHelper.class.getName()).log(Level.SEVERE, null, ex);
