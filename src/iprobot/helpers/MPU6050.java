@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MPU6050 {
+public final class MPU6050 {
 
     // I2Cdev library collection - MPU6050 I2C device class
     // Based on InvenSense MPU-6050 register map document rev. 2.0, 5/19/2011 (RM-MPU-6000A-00)
@@ -50,21 +50,10 @@ public class MPU6050 {
     private byte buffer[] = new byte[14]; // byte is signed, in case of negative add 127
     I2CHelper I2Cdev;
 
-    MPU6050() {
+    public MPU6050() {
         devAddr = (byte) MPU6050_Registers.MPU6050_DEFAULT_ADDRESS;
         I2Cdev = new I2CHelper(I2CBus.BUS_1, devAddr);
-    }
-
-    /**
-     * Specific address constructor.
-     *
-     * @param address I2C address
-     * @see MPU6050_Registers.MPU6050_DEFAULT_ADDRESS
-     * @see MPU6050_Registers.MPU6050_ADDRESS_AD0_LOW
-     * @see MPU6050_Registers.MPU6050_ADDRESS_AD0_HIGH
-     */
-    MPU6050(byte address) {
-        devAddr = address;
+        this.initialize();
     }
 
     /**
@@ -75,7 +64,7 @@ public class MPU6050 {
      * clock source to use the X Gyro for reference, which is slightly better
      * than the default internal clock source.
      */
-    void initialize() {
+    public void initialize() {
         setClockSource((byte) MPU6050_Registers.MPU6050_CLOCK_PLL_XGYRO);
         setFullScaleGyroRange((byte) MPU6050_Registers.MPU6050_GYRO_FS_250);
         setFullScaleAccelRange((byte) MPU6050_Registers.MPU6050_ACCEL_FS_2);
@@ -88,7 +77,7 @@ public class MPU6050 {
      *
      * @return True if connection is valid, false otherwise
      */
-    boolean testConnection() {
+    public boolean testConnection() {
         return getDeviceID() == 0x34;
     }
 
@@ -101,7 +90,7 @@ public class MPU6050 {
      *
      * @return I2C supply voltage level (0=VLOGIC, 1=VDD)
      */
-    byte getAuxVDDIOLevel() {
+    public byte getAuxVDDIOLevel() {
 
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_YG_OFFS_TC, MPU6050_Registers.MPU6050_TC_PWR_MODE_BIT);
 
@@ -116,7 +105,7 @@ public class MPU6050 {
      *
      * @param level I2C supply voltage level (0=VLOGIC, 1=VDD)
      */
-    void setAuxVDDIOLevel(byte level) {
+    public void setAuxVDDIOLevel(byte level) {
 
         I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_YG_OFFS_TC, MPU6050_Registers.MPU6050_TC_PWR_MODE_BIT, level);
 
@@ -144,7 +133,7 @@ public class MPU6050 {
      * @return Current sample rate
      * @see MPU6050_Registers.MPU6050_RA_SMPLRT_DIV
      */
-    byte getRate() {
+    public byte getRate() {
 
         buffer[0] = (byte) I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_SMPLRT_DIV);
 
@@ -158,7 +147,7 @@ public class MPU6050 {
      * @see getRate()
      * @see MPU6050_Registers.MPU6050_RA_SMPLRT_DIV
      */
-    void setRate(byte rate) {
+    public void setRate(byte rate) {
 
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_SMPLRT_DIV, rate);
 
@@ -193,7 +182,7 @@ public class MPU6050 {
      *
      * @return FSYNC configuration value
      */
-    int getExternalFrameSync() {
+    public int getExternalFrameSync() {
         return I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_CONFIG, MPU6050_Registers.MPU6050_CFG_EXT_SYNC_SET_BIT, MPU6050_Registers.MPU6050_CFG_EXT_SYNC_SET_LENGTH);
 
     }
@@ -205,7 +194,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_CONFIG
      * @param sync New FSYNC configuration value
      */
-    void setExternalFrameSync(byte sync) {
+    public void setExternalFrameSync(byte sync) {
 
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_CONFIG, MPU6050_Registers.MPU6050_CFG_EXT_SYNC_SET_BIT, MPU6050_Registers.MPU6050_CFG_EXT_SYNC_SET_LENGTH, sync);
 
@@ -239,7 +228,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_CFG_DLPF_CFG_BIT
      * @see MPU6050_Registers.MPU6050_CFG_DLPF_CFG_LENGTH
      */
-    byte getDLPFMode() {
+    public byte getDLPFMode() {
 
         buffer[0] = (byte) I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_CONFIG, MPU6050_Registers.MPU6050_CFG_DLPF_CFG_BIT, MPU6050_Registers.MPU6050_CFG_DLPF_CFG_LENGTH);
 
@@ -256,7 +245,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_CFG_DLPF_CFG_BIT
      * @see MPU6050_Registers.MPU6050_CFG_DLPF_CFG_LENGTH
      */
-    void setDLPFMode(byte mode) {
+    public void setDLPFMode(byte mode) {
 
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_CONFIG, MPU6050_Registers.MPU6050_CFG_DLPF_CFG_BIT, MPU6050_Registers.MPU6050_CFG_DLPF_CFG_LENGTH, mode);
 
@@ -280,7 +269,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_GCONFIG_FS_SEL_BIT
      * @see MPU6050_Registers.MPU6050_GCONFIG_FS_SEL_LENGTH
      */
-    byte getFullScaleGyroRange() {
+    public byte getFullScaleGyroRange() {
 
         buffer[0] = (byte) I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_GYRO_CONFIG, MPU6050_Registers.MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_Registers.MPU6050_GCONFIG_FS_SEL_LENGTH);
 
@@ -297,7 +286,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_GCONFIG_FS_SEL_BIT
      * @see MPU6050_Registers.MPU6050_GCONFIG_FS_SEL_LENGTH
      */
-    void setFullScaleGyroRange(byte range) {
+    public void setFullScaleGyroRange(byte range) {
 
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_GYRO_CONFIG, MPU6050_Registers.MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_Registers.MPU6050_GCONFIG_FS_SEL_LENGTH, range);
 
@@ -310,7 +299,7 @@ public class MPU6050 {
      * @return factory trim value
      * @see MPU6050_Registers.MPU6050_RA_SELF_TEST_X
      */
-    byte getAccelXSelfTestFactoryTrim() {
+    public byte getAccelXSelfTestFactoryTrim() {
 
         buffer[0] = (byte) I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_SELF_TEST_X);
         buffer[1] = (byte) I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_SELF_TEST_A);
@@ -324,7 +313,7 @@ public class MPU6050 {
      * @return factory trim value
      * @see MPU6050_Registers.MPU6050_RA_SELF_TEST_Y
      */
-    byte getAccelYSelfTestFactoryTrim() {
+    public byte getAccelYSelfTestFactoryTrim() {
 
         buffer[0] = (byte) I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_SELF_TEST_Y);
         buffer[1] = (byte) I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_SELF_TEST_A);
@@ -338,7 +327,7 @@ public class MPU6050 {
      * @return factory trim value
      * @see MPU6050_Registers.MPU6050_RA_SELF_TEST_Z
      */
-    byte getAccelZSelfTestFactoryTrim() throws IOException {
+    public byte getAccelZSelfTestFactoryTrim() throws IOException {
         int[] b = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_SELF_TEST_Z, 2);
         return (byte) ((b[0] >> 3) | (b[1] & 0x03));
     }
@@ -349,7 +338,7 @@ public class MPU6050 {
      * @return factory trim value
      * @see MPU6050_Registers.MPU6050_RA_SELF_TEST_X
      */
-    byte getGyroXSelfTestFactoryTrim() {
+    public byte getGyroXSelfTestFactoryTrim() {
 
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_SELF_TEST_X);
 
@@ -362,7 +351,7 @@ public class MPU6050 {
      * @return factory trim value
      * @see MPU6050_Registers.MPU6050_RA_SELF_TEST_Y
      */
-    byte getGyroYSelfTestFactoryTrim() {
+    public byte getGyroYSelfTestFactoryTrim() {
 
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_SELF_TEST_Y);
 
@@ -392,7 +381,7 @@ public class MPU6050 {
     boolean getAccelXSelfTest() {
 
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_XA_ST_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -401,11 +390,12 @@ public class MPU6050 {
      * @param enabled Self-test enabled value
      * @see MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG
      */
-    void setAccelXSelfTest(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_XA_ST_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_XA_ST_BIT, (byte)0);
+    public void setAccelXSelfTest(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_XA_ST_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_XA_ST_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -416,9 +406,9 @@ public class MPU6050 {
      */
     boolean getAccelYSelfTest() {
 
-        buffer[0]=(byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_YA_ST_BIT);
+        buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_YA_ST_BIT);
 
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -427,12 +417,13 @@ public class MPU6050 {
      * @param enabled Self-test enabled value
      * @see MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG
      */
-    void setAccelYSelfTest(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_YA_ST_BIT,  (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_YA_ST_BIT, (byte)0);
-    
+    public void setAccelYSelfTest(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_YA_ST_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_YA_ST_BIT, (byte) 0);
+        }
+
     }
 
     /**
@@ -442,8 +433,8 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG
      */
     boolean getAccelZSelfTest() {
-        buffer[0]= (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_ZA_ST_BIT);
-        return buffer[0]==1;
+        buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_ZA_ST_BIT);
+        return buffer[0] == 1;
     }
 
     /**
@@ -452,12 +443,13 @@ public class MPU6050 {
      * @param enabled Self-test enabled value
      * @see MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG
      */
-    void setAccelZSelfTest(boolean enabled) {        
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_ZA_ST_BIT,  (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_ZA_ST_BIT, (byte)0);
-    
+    public void setAccelZSelfTest(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_ZA_ST_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_ZA_ST_BIT, (byte) 0);
+        }
+
     }
 
     /**
@@ -489,7 +481,7 @@ public class MPU6050 {
      * @param range New full-scale accelerometer range setting
      * @see getFullScaleAccelRange()
      */
-    void setFullScaleAccelRange(byte range) {
+    public void setFullScaleAccelRange(byte range) {
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_AFS_SEL_BIT, MPU6050_Registers.MPU6050_ACONFIG_AFS_SEL_LENGTH, range);
     }
 
@@ -529,7 +521,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_DHPF_RESET
      * @see MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG
      */
-    byte getDHPFMode() {
+    public byte getDHPFMode() {
         buffer[0] = (byte) I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_ACCEL_HPF_BIT, MPU6050_Registers.MPU6050_ACONFIG_ACCEL_HPF_LENGTH);
         return buffer[0];
     }
@@ -542,7 +534,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_DHPF_RESET
      * @see MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG
      */
-    void setDHPFMode(byte bandwidth) {
+    public void setDHPFMode(byte bandwidth) {
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_ACCEL_CONFIG, MPU6050_Registers.MPU6050_ACONFIG_ACCEL_HPF_BIT, MPU6050_Registers.MPU6050_ACONFIG_ACCEL_HPF_LENGTH, bandwidth);
     }
 
@@ -563,8 +555,8 @@ public class MPU6050 {
      * @return Current free-fall acceleration threshold value (LSB = 2mg)
      * @see MPU6050_Registers.MPU6050_RA_FF_THR
      */
-    byte getFreefallDetectionThreshold() {
-        buffer[0] = (byte)I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_FF_THR);
+    public byte getFreefallDetectionThreshold() {
+        buffer[0] = (byte) I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_FF_THR);
         return buffer[0];
     }
 
@@ -575,7 +567,7 @@ public class MPU6050 {
      * @see getFreefallDetectionThreshold()
      * @see MPU6050_Registers.MPU6050_RA_FF_THR
      */
-    void setFreefallDetectionThreshold(byte threshold) {
+    public void setFreefallDetectionThreshold(byte threshold) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_FF_THR, threshold);
     }
 
@@ -597,8 +589,8 @@ public class MPU6050 {
      * @return Current free-fall duration threshold value (LSB = 1ms)
      * @see MPU6050_Registers.MPU6050_RA_FF_DUR
      */
-    byte getFreefallDetectionDuration() {
-       buffer[0] = (byte) I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_FF_DUR);
+    public byte getFreefallDetectionDuration() {
+        buffer[0] = (byte) I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_FF_DUR);
         return buffer[0];
     }
 
@@ -609,7 +601,7 @@ public class MPU6050 {
      * @see getFreefallDetectionDuration()
      * @see MPU6050_Registers.MPU6050_RA_FF_DUR
      */
-    void setFreefallDetectionDuration(byte duration) {
+    public void setFreefallDetectionDuration(byte duration) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_FF_DUR, duration);
     }
 
@@ -634,8 +626,8 @@ public class MPU6050 {
      * @return Current motion detection acceleration threshold value (LSB = 2mg)
      * @see MPU6050_Registers.MPU6050_RA_MOT_THR
      */
-    byte getMotionDetectionThreshold() {
-       buffer[0] = (byte) I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_MOT_THR);
+    public byte getMotionDetectionThreshold() {
+        buffer[0] = (byte) I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_MOT_THR);
         return buffer[0];
     }
 
@@ -647,7 +639,7 @@ public class MPU6050 {
      * @see getMotionDetectionThreshold()
      * @see MPU6050_Registers.MPU6050_RA_MOT_THR
      */
-    void setMotionDetectionThreshold(byte threshold) {
+    public void setMotionDetectionThreshold(byte threshold) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_MOT_THR, threshold);
     }
 
@@ -668,8 +660,8 @@ public class MPU6050 {
      * @return Current motion detection duration threshold value (LSB = 1ms)
      * @see MPU6050_Registers.MPU6050_RA_MOT_DUR
      */
-    byte getMotionDetectionDuration() {
-      buffer[0] = (byte)  I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_MOT_DUR);
+    public byte getMotionDetectionDuration() {
+        buffer[0] = (byte) I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_MOT_DUR);
         return buffer[0];
     }
 
@@ -680,7 +672,7 @@ public class MPU6050 {
      * @see getMotionDetectionDuration()
      * @see MPU6050_Registers.MPU6050_RA_MOT_DUR
      */
-    void setMotionDetectionDuration(byte duration) {
+    public void setMotionDetectionDuration(byte duration) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_MOT_DUR, duration);
     }
 
@@ -713,8 +705,8 @@ public class MPU6050 {
      * 2mg)
      * @see MPU6050_Registers.MPU6050_RA_ZRMOT_THR
      */
-    byte getZeroMotionDetectionThreshold() {
-      buffer[0] = (byte)  I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_ZRMOT_THR);
+    public byte getZeroMotionDetectionThreshold() {
+        buffer[0] = (byte) I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_ZRMOT_THR);
         return buffer[0];
     }
 
@@ -726,7 +718,7 @@ public class MPU6050 {
      * @see getZeroMotionDetectionThreshold()
      * @see MPU6050_Registers.MPU6050_RA_ZRMOT_THR
      */
-    void setZeroMotionDetectionThreshold(byte threshold) {
+    public void setZeroMotionDetectionThreshold(byte threshold) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_ZRMOT_THR, threshold);
     }
 
@@ -749,8 +741,8 @@ public class MPU6050 {
      * 64ms)
      * @see MPU6050_Registers.MPU6050_RA_ZRMOT_DUR
      */
-    byte getZeroMotionDetectionDuration() {
-      buffer[0] = (byte)  I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_ZRMOT_DUR);
+    public byte getZeroMotionDetectionDuration() {
+        buffer[0] = (byte) I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_ZRMOT_DUR);
         return buffer[0];
     }
 
@@ -762,7 +754,7 @@ public class MPU6050 {
      * @see getZeroMotionDetectionDuration()
      * @see MPU6050_Registers.MPU6050_RA_ZRMOT_DUR
      */
-    void setZeroMotionDetectionDuration(byte duration) {
+    public void setZeroMotionDetectionDuration(byte duration) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_ZRMOT_DUR, duration);
     }
 
@@ -775,9 +767,9 @@ public class MPU6050 {
      * @return Current temperature FIFO enabled value
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    boolean getTempFIFOEnabled() {
-      buffer[0] = (byte)  I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_TEMP_FIFO_EN_BIT);
-        return  buffer[0]==1;
+    public boolean getTempFIFOEnabled() {
+        buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_TEMP_FIFO_EN_BIT);
+        return buffer[0] == 1;
     }
 
     /**
@@ -787,11 +779,12 @@ public class MPU6050 {
      * @see getTempFIFOEnabled()
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    void setTempFIFOEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_TEMP_FIFO_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_TEMP_FIFO_EN_BIT, (byte)0);
+    public void setTempFIFOEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_TEMP_FIFO_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_TEMP_FIFO_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -802,9 +795,9 @@ public class MPU6050 {
      * @return Current gyroscope X-axis FIFO enabled value
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    boolean getXGyroFIFOEnabled() {
-       buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_XG_FIFO_EN_BIT);
-        return buffer[0]==1;
+    public boolean getXGyroFIFOEnabled() {
+        buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_XG_FIFO_EN_BIT);
+        return buffer[0] == 1;
     }
 
     /**
@@ -814,11 +807,12 @@ public class MPU6050 {
      * @see getXGyroFIFOEnabled()
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    void setXGyroFIFOEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_XG_FIFO_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_XG_FIFO_EN_BIT, (byte)0);
+    public void setXGyroFIFOEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_XG_FIFO_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_XG_FIFO_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -829,9 +823,9 @@ public class MPU6050 {
      * @return Current gyroscope Y-axis FIFO enabled value
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    boolean getYGyroFIFOEnabled() {
-     buffer[0] = (byte)   I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_YG_FIFO_EN_BIT);
-        return buffer[0]==1;
+    public boolean getYGyroFIFOEnabled() {
+        buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_YG_FIFO_EN_BIT);
+        return buffer[0] == 1;
     }
 
     /**
@@ -841,11 +835,12 @@ public class MPU6050 {
      * @see getYGyroFIFOEnabled()
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    void setYGyroFIFOEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_YG_FIFO_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_YG_FIFO_EN_BIT, (byte)0);
+    public void setYGyroFIFOEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_YG_FIFO_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_YG_FIFO_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -858,7 +853,7 @@ public class MPU6050 {
      */
     boolean getZGyroFIFOEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_ZG_FIFO_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -868,11 +863,12 @@ public class MPU6050 {
      * @see getZGyroFIFOEnabled()
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    void setZGyroFIFOEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_ZG_FIFO_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_ZG_FIFO_EN_BIT, (byte)0);
+    public void setZGyroFIFOEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_ZG_FIFO_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_ZG_FIFO_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -883,9 +879,9 @@ public class MPU6050 {
      * @return Current accelerometer FIFO enabled value
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    boolean getAccelFIFOEnabled() {
+    public boolean getAccelFIFOEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_ACCEL_FIFO_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -895,11 +891,12 @@ public class MPU6050 {
      * @see getAccelFIFOEnabled()
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    void setAccelFIFOEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_ACCEL_FIFO_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_ACCEL_FIFO_EN_BIT, (byte)0);
+    public void setAccelFIFOEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_ACCEL_FIFO_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_ACCEL_FIFO_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -910,9 +907,9 @@ public class MPU6050 {
      * @return Current Slave 2 FIFO enabled value
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    boolean getSlave2FIFOEnabled() {
+    public boolean getSlave2FIFOEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV2_FIFO_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -922,11 +919,12 @@ public class MPU6050 {
      * @see getSlave2FIFOEnabled()
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    void setSlave2FIFOEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV2_FIFO_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV2_FIFO_EN_BIT, (byte)0);
+    public void setSlave2FIFOEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV2_FIFO_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV2_FIFO_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -937,9 +935,9 @@ public class MPU6050 {
      * @return Current Slave 1 FIFO enabled value
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    boolean getSlave1FIFOEnabled() {
+    public boolean getSlave1FIFOEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV1_FIFO_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -949,11 +947,12 @@ public class MPU6050 {
      * @see getSlave1FIFOEnabled()
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    void setSlave1FIFOEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV1_FIFO_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV1_FIFO_EN_BIT, (byte)0);
+    public void setSlave1FIFOEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV1_FIFO_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV1_FIFO_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -964,9 +963,9 @@ public class MPU6050 {
      * @return Current Slave 0 FIFO enabled value
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    boolean getSlave0FIFOEnabled() {
+    public boolean getSlave0FIFOEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV0_FIFO_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -976,11 +975,12 @@ public class MPU6050 {
      * @see getSlave0FIFOEnabled()
      * @see MPU6050_Registers.MPU6050_RA_FIFO_EN
      */
-    void setSlave0FIFOEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV0_FIFO_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV0_FIFO_EN_BIT, (byte)0);
+    public void setSlave0FIFOEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV0_FIFO_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_FIFO_EN, MPU6050_Registers.MPU6050_SLV0_FIFO_EN_BIT, (byte) 0);
+        }
     }
 
     // I2C_MST_CTRL register
@@ -1000,9 +1000,9 @@ public class MPU6050 {
      * @return Current multi-master enabled value
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL
      */
-    boolean getMultiMasterEnabled() {
+    public boolean getMultiMasterEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_MULT_MST_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1012,11 +1012,12 @@ public class MPU6050 {
      * @see getMultiMasterEnabled()
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL
      */
-    void setMultiMasterEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_MULT_MST_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_MULT_MST_EN_BIT, (byte)0);
+    public void setMultiMasterEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_MULT_MST_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_MULT_MST_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1031,9 +1032,9 @@ public class MPU6050 {
      * @return Current wait-for-external-sensor-data enabled value
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL
      */
-    boolean getWaitForExternalSensorEnabled() {
+    public boolean getWaitForExternalSensorEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_WAIT_FOR_ES_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1043,11 +1044,12 @@ public class MPU6050 {
      * @see getWaitForExternalSensorEnabled()
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL
      */
-    void setWaitForExternalSensorEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_WAIT_FOR_ES_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_WAIT_FOR_ES_BIT, (byte)0);
+    public void setWaitForExternalSensorEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_WAIT_FOR_ES_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_WAIT_FOR_ES_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1058,9 +1060,9 @@ public class MPU6050 {
      * @return Current Slave 3 FIFO enabled value
      * @see MPU6050_Registers.MPU6050_RA_MST_CTRL
      */
-    boolean getSlave3FIFOEnabled() {
+    public boolean getSlave3FIFOEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_SLV_3_FIFO_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1070,11 +1072,12 @@ public class MPU6050 {
      * @see getSlave3FIFOEnabled()
      * @see MPU6050_Registers.MPU6050_RA_MST_CTRL
      */
-    void setSlave3FIFOEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_SLV_3_FIFO_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_SLV_3_FIFO_EN_BIT, (byte)0);
+    public void setSlave3FIFOEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_SLV_3_FIFO_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_SLV_3_FIFO_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1088,9 +1091,9 @@ public class MPU6050 {
      * @return Current slave read/write transition enabled value
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL
      */
-    boolean getSlaveReadWriteTransitionEnabled() {
+    public boolean getSlaveReadWriteTransitionEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_I2C_MST_P_NSR_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1100,11 +1103,12 @@ public class MPU6050 {
      * @see getSlaveReadWriteTransitionEnabled()
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL
      */
-    void setSlaveReadWriteTransitionEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_I2C_MST_P_NSR_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_I2C_MST_P_NSR_BIT, (byte)0);
+    public void setSlaveReadWriteTransitionEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_I2C_MST_P_NSR_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_I2C_MST_P_NSR_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1136,7 +1140,7 @@ public class MPU6050 {
      * @return Current I2C master clock speed
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL
      */
-    byte getMasterClockSpeed() {
+    public byte getMasterClockSpeed() {
         buffer[0] = (byte) I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_I2C_MST_CLK_BIT, MPU6050_Registers.MPU6050_I2C_MST_CLK_LENGTH);
         return buffer[0];
     }
@@ -1147,7 +1151,7 @@ public class MPU6050 {
      * @reparam speed Current I2C master clock speed
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL
      */
-    void setMasterClockSpeed(byte speed) {
+    public void setMasterClockSpeed(byte speed) {
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_I2C_MST_CTRL, MPU6050_Registers.MPU6050_I2C_MST_CLK_BIT, MPU6050_Registers.MPU6050_I2C_MST_CLK_LENGTH, speed);
     }
 
@@ -1195,7 +1199,7 @@ public class MPU6050 {
      * @return Current address for specified slave
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_ADDR
      */
-    byte getSlaveAddress(byte num) {
+    public byte getSlaveAddress(byte num) {
         if (num > 3) {
             return 0;
         }
@@ -1211,7 +1215,7 @@ public class MPU6050 {
      * @see getSlaveAddress()
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_ADDR
      */
-    void setSlaveAddress(byte num, byte address) {
+    public void setSlaveAddress(byte num, byte address) {
         if (num > 3) {
             return;
         }
@@ -1230,7 +1234,7 @@ public class MPU6050 {
      * @return Current active register for specified slave
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_REG
      */
-    byte getSlaveRegister(byte num) {
+    public byte getSlaveRegister(byte num) {
         if (num > 3) {
             return 0;
         }
@@ -1246,7 +1250,7 @@ public class MPU6050 {
      * @see getSlaveRegister()
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_REG
      */
-    void setSlaveRegister(byte num, byte reg) {
+    public void setSlaveRegister(byte num, byte reg) {
         if (num > 3) {
             return;
         }
@@ -1262,12 +1266,12 @@ public class MPU6050 {
      * @return Current enabled value for specified slave
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL
      */
-    boolean getSlaveEnabled(byte num) {
+    public boolean getSlaveEnabled(byte num) {
         if (num > 3) {
             return false;
         }
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL + num * 3, MPU6050_Registers.MPU6050_I2C_SLV_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1278,14 +1282,15 @@ public class MPU6050 {
      * @see getSlaveEnabled()
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL
      */
-    void setSlaveEnabled(byte num, boolean enabled) {
+    public void setSlaveEnabled(byte num, boolean enabled) {
         if (num > 3) {
             return;
         }
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_EN_BIT, (byte)0);
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1300,12 +1305,12 @@ public class MPU6050 {
      * @return Current word pair byte-swapping enabled value for specified slave
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL
      */
-    boolean getSlaveWordByteSwap(byte num) {
+    public boolean getSlaveWordByteSwap(byte num) {
         if (num > 3) {
             return false;
         }
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL + num * 3, MPU6050_Registers.MPU6050_I2C_SLV_BYTE_SW_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1317,15 +1322,16 @@ public class MPU6050 {
      * @see getSlaveWordByteSwap()
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL
      */
-    void setSlaveWordByteSwap(byte num, boolean enabled) {
+    public void setSlaveWordByteSwap(byte num, boolean enabled) {
         if (num > 3) {
             return;
         }
-        
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_BYTE_SW_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_BYTE_SW_BIT, (byte)0);
+
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_BYTE_SW_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_BYTE_SW_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1340,12 +1346,12 @@ public class MPU6050 {
      * data, 1 = data only)
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL
      */
-    boolean getSlaveWriteMode(byte num) {
+    public boolean getSlaveWriteMode(byte num) {
         if (num > 3) {
             return false;
         }
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL + num * 3, MPU6050_Registers.MPU6050_I2C_SLV_REG_DIS_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1357,14 +1363,15 @@ public class MPU6050 {
      * @see getSlaveWriteMode()
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL
      */
-    void setSlaveWriteMode(byte num, boolean mode) {
+    public void setSlaveWriteMode(byte num, boolean mode) {
         if (num > 3) {
             return;
         }
-        if(mode)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_REG_DIS_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_REG_DIS_BIT, (byte)0);
+        if (mode) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_REG_DIS_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_REG_DIS_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1379,12 +1386,12 @@ public class MPU6050 {
      * @return Current word pair grouping order offset for specified slave
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL
      */
-    boolean getSlaveWordGroupOffset(byte num) {
+    public boolean getSlaveWordGroupOffset(byte num) {
         if (num > 3) {
             return false;
         }
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL + num * 3, MPU6050_Registers.MPU6050_I2C_SLV_GRP_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1395,14 +1402,15 @@ public class MPU6050 {
      * @see getSlaveWordGroupOffset()
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL
      */
-    void setSlaveWordGroupOffset(byte num, boolean enabled) {
+    public void setSlaveWordGroupOffset(byte num, boolean enabled) {
         if (num > 3) {
             return;
         }
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_GRP_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_GRP_BIT, (byte)0);
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_GRP_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL, MPU6050_Registers.MPU6050_I2C_SLV_GRP_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1414,7 +1422,7 @@ public class MPU6050 {
      * @return Number of bytes to read for specified slave
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL
      */
-    byte getSlaveDataLength(byte num) {
+    public byte getSlaveDataLength(byte num) {
         if (num > 3) {
             return 0;
         }
@@ -1430,7 +1438,7 @@ public class MPU6050 {
      * @see getSlaveDataLength()
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_CTRL
      */
-    void setSlaveDataLength(byte num, byte length) {
+    public void setSlaveDataLength(byte num, byte length) {
         if (num > 3) {
             return;
         }
@@ -1448,7 +1456,7 @@ public class MPU6050 {
      * @see getSlaveAddress()
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV4_ADDR
      */
-    byte getSlave4Address() {
+    public byte getSlave4Address() {
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_I2C_SLV4_ADDR);
         return buffer[0];
     }
@@ -1460,7 +1468,7 @@ public class MPU6050 {
      * @see getSlave4Address()
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV4_ADDR
      */
-    void setSlave4Address(byte address) {
+    public void setSlave4Address(byte address) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_I2C_SLV4_ADDR, address);
     }
 
@@ -1472,7 +1480,7 @@ public class MPU6050 {
      * @return Current active register for Slave 4
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV4_REG
      */
-    byte getSlave4Register() {
+    public byte getSlave4Register() {
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_I2C_SLV4_REG);
         return buffer[0];
     }
@@ -1484,7 +1492,7 @@ public class MPU6050 {
      * @see getSlave4Register()
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV4_REG
      */
-    void setSlave4Register(byte reg) {
+    public void setSlave4Register(byte reg) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_I2C_SLV4_REG, reg);
     }
 
@@ -1496,7 +1504,7 @@ public class MPU6050 {
      * @param data New byte to write to Slave 4
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV4_DO
      */
-    void setSlave4OutputByte(byte data) {
+    public void setSlave4OutputByte(byte data) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_I2C_SLV4_DO, data);
     }
 
@@ -1508,9 +1516,9 @@ public class MPU6050 {
      * @return Current enabled value for Slave 4
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL
      */
-    boolean getSlave4Enabled() {
+    public boolean getSlave4Enabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1520,11 +1528,12 @@ public class MPU6050 {
      * @see getSlave4Enabled()
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL
      */
-    void setSlave4Enabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_EN_BIT, (byte)0);
+    public void setSlave4Enabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1539,7 +1548,7 @@ public class MPU6050 {
      */
     boolean getSlave4InterruptEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_INT_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1549,11 +1558,12 @@ public class MPU6050 {
      * @see getSlave4InterruptEnabled()
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL
      */
-    void setSlave4InterruptEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_INT_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_INT_EN_BIT, (byte)0);
+    public void setSlave4InterruptEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_INT_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_INT_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1567,9 +1577,9 @@ public class MPU6050 {
      * data only)
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL
      */
-    boolean getSlave4WriteMode() {
+    public boolean getSlave4WriteMode() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_REG_DIS_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1580,11 +1590,12 @@ public class MPU6050 {
      * @see getSlave4WriteMode()
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL
      */
-    void setSlave4WriteMode(boolean mode) {
-        if(mode)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_REG_DIS_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_REG_DIS_BIT, (byte)0);
+    public void setSlave4WriteMode(boolean mode) {
+        if (mode) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_REG_DIS_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_REG_DIS_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1603,7 +1614,7 @@ public class MPU6050 {
      * @return Current Slave 4 master delay value
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL
      */
-    byte getSlave4MasterDelay() {
+    public byte getSlave4MasterDelay() {
         buffer[0] = (byte) I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_MST_DLY_BIT, MPU6050_Registers.MPU6050_I2C_SLV4_MST_DLY_LENGTH);
         return buffer[0];
     }
@@ -1615,7 +1626,7 @@ public class MPU6050 {
      * @see getSlave4MasterDelay()
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL
      */
-    void setSlave4MasterDelay(byte delay) {
+    public void setSlave4MasterDelay(byte delay) {
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_I2C_SLV4_CTRL, MPU6050_Registers.MPU6050_I2C_SLV4_MST_DLY_BIT, MPU6050_Registers.MPU6050_I2C_SLV4_MST_DLY_LENGTH, delay);
     }
 
@@ -1626,7 +1637,7 @@ public class MPU6050 {
      * @return Last available byte read from to Slave 4
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV4_DI
      */
-    byte getSlate4InputByte() {
+    public byte getSlate4InputByte() {
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_I2C_SLV4_DI);
         return buffer[0];
     }
@@ -1642,9 +1653,9 @@ public class MPU6050 {
      * @return FSYNC interrupt status
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS
      */
-    boolean getPassthroughStatus() {
+    public boolean getPassthroughStatus() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS, MPU6050_Registers.MPU6050_MST_PASS_THROUGH_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1657,9 +1668,9 @@ public class MPU6050 {
      * @return Slave 4 transaction done status
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS
      */
-    boolean getSlave4IsDone() {
+    public boolean getSlave4IsDone() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS, MPU6050_Registers.MPU6050_MST_I2C_SLV4_DONE_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1671,9 +1682,9 @@ public class MPU6050 {
      * @return Master arbitration lost status
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS
      */
-    boolean getLostArbitration() {
+    public boolean getLostArbitration() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS, MPU6050_Registers.MPU6050_MST_I2C_LOST_ARB_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1685,9 +1696,9 @@ public class MPU6050 {
      * @return Slave 4 NACK interrupt status
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS
      */
-    boolean getSlave4Nack() {
+    public boolean getSlave4Nack() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS, MPU6050_Registers.MPU6050_MST_I2C_SLV4_NACK_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1699,9 +1710,9 @@ public class MPU6050 {
      * @return Slave 3 NACK interrupt status
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS
      */
-    boolean getSlave3Nack() {
+    public boolean getSlave3Nack() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS, MPU6050_Registers.MPU6050_MST_I2C_SLV3_NACK_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1713,9 +1724,9 @@ public class MPU6050 {
      * @return Slave 2 NACK interrupt status
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS
      */
-    boolean getSlave2Nack() {
+    public boolean getSlave2Nack() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS, MPU6050_Registers.MPU6050_MST_I2C_SLV2_NACK_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1727,9 +1738,9 @@ public class MPU6050 {
      * @return Slave 1 NACK interrupt status
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS
      */
-    boolean getSlave1Nack() {
+    public boolean getSlave1Nack() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS, MPU6050_Registers.MPU6050_MST_I2C_SLV1_NACK_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1741,9 +1752,9 @@ public class MPU6050 {
      * @return Slave 0 NACK interrupt status
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS
      */
-    boolean getSlave0Nack() {
+    public boolean getSlave0Nack() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_MST_STATUS, MPU6050_Registers.MPU6050_MST_I2C_SLV0_NACK_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     // INT_PIN_CFG register
@@ -1755,9 +1766,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_INT_LEVEL_BIT
      */
-    boolean getInterruptMode() {
+    public boolean getInterruptMode() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_LEVEL_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1768,11 +1779,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_INT_LEVEL_BIT
      */
-    void setInterruptMode(boolean mode) {
-        if(mode)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_LEVEL_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_LEVEL_BIT, (byte)0);
+    public void setInterruptMode(boolean mode) {
+        if (mode) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_LEVEL_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_LEVEL_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1782,9 +1794,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_INT_OPEN_BIT
      */
-    boolean getInterruptDrive() {
+    public boolean getInterruptDrive() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_OPEN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1795,11 +1807,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_INT_OPEN_BIT
      */
-    void setInterruptDrive(boolean drive) {
-        if(drive)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_OPEN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_OPEN_BIT, (byte)0);
+    public void setInterruptDrive(boolean drive) {
+        if (drive) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_OPEN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_OPEN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1810,9 +1823,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_LATCH_INT_EN_BIT
      */
-    boolean getInterruptLatch() {
+    public boolean getInterruptLatch() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_LATCH_INT_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1823,11 +1836,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_LATCH_INT_EN_BIT
      */
-    void setInterruptLatch(boolean latch) {
-        if(latch)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_LATCH_INT_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_LATCH_INT_EN_BIT, (byte)0);
+    public void setInterruptLatch(boolean latch) {
+        if (latch) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_LATCH_INT_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_LATCH_INT_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1839,9 +1853,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_INT_RD_CLEAR_BIT
      */
-    boolean getInterruptLatchClear() {
+    public boolean getInterruptLatchClear() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_RD_CLEAR_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1853,11 +1867,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_INT_RD_CLEAR_BIT
      */
-    void setInterruptLatchClear(boolean clear) {
-        if(clear)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_RD_CLEAR_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_RD_CLEAR_BIT, (byte)0);
+    public void setInterruptLatchClear(boolean clear) {
+        if (clear) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_RD_CLEAR_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_INT_RD_CLEAR_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1868,9 +1883,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_FSYNC_INT_LEVEL_BIT
      */
-    boolean getFSyncInterruptLevel() {
+    public boolean getFSyncInterruptLevel() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_FSYNC_INT_LEVEL_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1881,11 +1896,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_FSYNC_INT_LEVEL_BIT
      */
-    void setFSyncInterruptLevel(boolean level) {
-        if(level)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_FSYNC_INT_LEVEL_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_FSYNC_INT_LEVEL_BIT, (byte)0);
+    public void setFSyncInterruptLevel(boolean level) {
+        if (level) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_FSYNC_INT_LEVEL_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_FSYNC_INT_LEVEL_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1896,9 +1912,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_FSYNC_INT_EN_BIT
      */
-    boolean getFSyncInterruptEnabled() {
+    public boolean getFSyncInterruptEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_FSYNC_INT_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1909,11 +1925,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_FSYNC_INT_EN_BIT
      */
-    void setFSyncInterruptEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_FSYNC_INT_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_FSYNC_INT_EN_BIT, (byte)0);
+    public void setFSyncInterruptEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_FSYNC_INT_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_FSYNC_INT_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1928,9 +1945,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_I2C_BYPASS_EN_BIT
      */
-    boolean getI2CBypassEnabled() {
+    public boolean getI2CBypassEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_I2C_BYPASS_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1945,11 +1962,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_I2C_BYPASS_EN_BIT
      */
-    void setI2CBypassEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_I2C_BYPASS_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_I2C_BYPASS_EN_BIT, (byte)0);
+    public void setI2CBypassEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_I2C_BYPASS_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_I2C_BYPASS_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -1963,9 +1981,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_CLKOUT_EN_BIT
      */
-    boolean getClockOutputEnabled() {
+    public boolean getClockOutputEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_CLKOUT_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -1979,11 +1997,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_PIN_CFG
      * @see MPU6050_Registers.MPU6050_INTCFG_CLKOUT_EN_BIT
      */
-    void setClockOutputEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_CLKOUT_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_CLKOUT_EN_BIT, (byte)0);
+    public void setClockOutputEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_CLKOUT_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_PIN_CFG, MPU6050_Registers.MPU6050_INTCFG_CLKOUT_EN_BIT, (byte) 0);
+        }
     }
 
     // INT_ENABLE register
@@ -1994,7 +2013,7 @@ public class MPU6050 {
      * @return Current interrupt enabled status
      * @see MPU6050_Registers.MPU6050_RA_INT_ENABLE
      * @see MPU6050_Registers.MPU6050_INTERRUPT_FF_BIT
-      *
+     *
      */
     byte getIntEnabled() {
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_INT_ENABLE);
@@ -2009,9 +2028,9 @@ public class MPU6050 {
      * @see getIntFreefallEnabled()
      * @see MPU6050_Registers.MPU6050_RA_INT_ENABLE
      * @see MPU6050_Registers.MPU6050_INTERRUPT_FF_BIT
-      *
+     *
      */
-    void setIntEnabled(byte enabled) {
+    public void setIntEnabled(byte enabled) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_INT_ENABLE, enabled);
     }
 
@@ -2022,11 +2041,11 @@ public class MPU6050 {
      * @return Current interrupt enabled status
      * @see MPU6050_Registers.MPU6050_RA_INT_ENABLE
      * @see MPU6050_Registers.MPU6050_INTERRUPT_FF_BIT
-      *
+     *
      */
-    boolean getIntFreefallEnabled() {
+    public boolean getIntFreefallEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_FF_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2036,13 +2055,14 @@ public class MPU6050 {
      * @see getIntFreefallEnabled()
      * @see MPU6050_Registers.MPU6050_RA_INT_ENABLE
      * @see MPU6050_Registers.MPU6050_INTERRUPT_FF_BIT
-      *
+     *
      */
-    void setIntFreefallEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_FF_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_FF_BIT, (byte)0);
+    public void setIntFreefallEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_FF_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_FF_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -2052,11 +2072,11 @@ public class MPU6050 {
      * @return Current interrupt enabled status
      * @see MPU6050_Registers.MPU6050_RA_INT_ENABLE
      * @see MPU6050_Registers.MPU6050_INTERRUPT_MOT_BIT
-      *
+     *
      */
-    boolean getIntMotionEnabled() {
+    public boolean getIntMotionEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_MOT_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2066,13 +2086,14 @@ public class MPU6050 {
      * @see getIntMotionEnabled()
      * @see MPU6050_Registers.MPU6050_RA_INT_ENABLE
      * @see MPU6050_Registers.MPU6050_INTERRUPT_MOT_BIT
-      *
+     *
      */
-    void setIntMotionEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_MOT_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_MOT_BIT, (byte)0);
+    public void setIntMotionEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_MOT_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_MOT_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -2082,11 +2103,11 @@ public class MPU6050 {
      * @return Current interrupt enabled status
      * @see MPU6050_Registers.MPU6050_RA_INT_ENABLE
      * @see MPU6050_Registers.MPU6050_INTERRUPT_ZMOT_BIT
-      *
+     *
      */
-    boolean getIntZeroMotionEnabled() {
+    public boolean getIntZeroMotionEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_ZMOT_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2096,13 +2117,14 @@ public class MPU6050 {
      * @see getIntZeroMotionEnabled()
      * @see MPU6050_Registers.MPU6050_RA_INT_ENABLE
      * @see MPU6050_Registers.MPU6050_INTERRUPT_ZMOT_BIT
-      *
+     *
      */
-    void setIntZeroMotionEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_ZMOT_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_ZMOT_BIT, (byte)0);
+    public void setIntZeroMotionEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_ZMOT_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_ZMOT_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -2112,11 +2134,11 @@ public class MPU6050 {
      * @return Current interrupt enabled status
      * @see MPU6050_Registers.MPU6050_RA_INT_ENABLE
      * @see MPU6050_Registers.MPU6050_INTERRUPT_FIFO_OFLOW_BIT
-      *
+     *
      */
-    boolean getIntFIFOBufferOverflowEnabled() {
+    public boolean getIntFIFOBufferOverflowEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_FIFO_OFLOW_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2126,13 +2148,14 @@ public class MPU6050 {
      * @see getIntFIFOBufferOverflowEnabled()
      * @see MPU6050_Registers.MPU6050_RA_INT_ENABLE
      * @see MPU6050_Registers.MPU6050_INTERRUPT_FIFO_OFLOW_BIT
-      *
+     *
      */
-    void setIntFIFOBufferOverflowEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_FIFO_OFLOW_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_FIFO_OFLOW_BIT, (byte)0);
+    public void setIntFIFOBufferOverflowEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_FIFO_OFLOW_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_FIFO_OFLOW_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -2143,11 +2166,11 @@ public class MPU6050 {
      * @return Current interrupt enabled status
      * @see MPU6050_Registers.MPU6050_RA_INT_ENABLE
      * @see MPU6050_Registers.MPU6050_INTERRUPT_I2C_MST_INT_BIT
-      *
+     *
      */
-    boolean getIntI2CMasterEnabled() {
+    public boolean getIntI2CMasterEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_I2C_MST_INT_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2157,13 +2180,14 @@ public class MPU6050 {
      * @see getIntI2CMasterEnabled()
      * @see MPU6050_Registers.MPU6050_RA_INT_ENABLE
      * @see MPU6050_Registers.MPU6050_INTERRUPT_I2C_MST_INT_BIT
-      *
+     *
      */
-    void setIntI2CMasterEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_I2C_MST_INT_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_I2C_MST_INT_BIT, (byte)0);
+    public void setIntI2CMasterEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_I2C_MST_INT_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_I2C_MST_INT_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -2175,9 +2199,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_ENABLE
      * @see MPU6050_Registers.MPU6050_INTERRUPT_DATA_RDY_BIT
      */
-    boolean getIntDataReadyEnabled() {
+    public boolean getIntDataReadyEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_DATA_RDY_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2188,11 +2212,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_CFG
      * @see MPU6050_Registers.MPU6050_INTERRUPT_DATA_RDY_BIT
      */
-    void setIntDataReadyEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_DATA_RDY_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_DATA_RDY_BIT, (byte)0);
+    public void setIntDataReadyEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_DATA_RDY_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_DATA_RDY_BIT, (byte) 0);
+        }
     }
 
     // INT_STATUS register
@@ -2205,7 +2230,7 @@ public class MPU6050 {
      * @return Current interrupt status
      * @see MPU6050_Registers.MPU6050_RA_INT_STATUS
      */
-    byte getIntStatus() {
+    public byte getIntStatus() {
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_INT_STATUS);
         return buffer[0];
     }
@@ -2219,9 +2244,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_STATUS
      * @see MPU6050_Registers.MPU6050_INTERRUPT_FF_BIT
      */
-    boolean getIntFreefallStatus() {
+    public boolean getIntFreefallStatus() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_STATUS, MPU6050_Registers.MPU6050_INTERRUPT_FF_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2233,9 +2258,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_STATUS
      * @see MPU6050_Registers.MPU6050_INTERRUPT_MOT_BIT
      */
-    boolean getIntMotionStatus() {
+    public boolean getIntMotionStatus() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_STATUS, MPU6050_Registers.MPU6050_INTERRUPT_MOT_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2247,9 +2272,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_STATUS
      * @see MPU6050_Registers.MPU6050_INTERRUPT_ZMOT_BIT
      */
-    boolean getIntZeroMotionStatus() {
+    public boolean getIntZeroMotionStatus() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_STATUS, MPU6050_Registers.MPU6050_INTERRUPT_ZMOT_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2261,9 +2286,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_STATUS
      * @see MPU6050_Registers.MPU6050_INTERRUPT_FIFO_OFLOW_BIT
      */
-    boolean getIntFIFOBufferOverflowStatus() {
+    public boolean getIntFIFOBufferOverflowStatus() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_STATUS, MPU6050_Registers.MPU6050_INTERRUPT_FIFO_OFLOW_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2276,9 +2301,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_STATUS
      * @see MPU6050_Registers.MPU6050_INTERRUPT_I2C_MST_INT_BIT
      */
-    boolean getIntI2CMasterStatus() {
+    public boolean getIntI2CMasterStatus() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_STATUS, MPU6050_Registers.MPU6050_INTERRUPT_I2C_MST_INT_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2290,14 +2315,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_INT_STATUS
      * @see MPU6050_Registers.MPU6050_INTERRUPT_DATA_RDY_BIT
      */
-    boolean getIntDataReadyStatus() {
+    public boolean getIntDataReadyStatus() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_STATUS, MPU6050_Registers.MPU6050_INTERRUPT_DATA_RDY_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     // ACCEL_*OUT_* registers
-  
-
     /**
      * Get raw 6-axis motion sensor readings (accel/gyro). Retrieves all
      * currently available motion sensor values.
@@ -2312,16 +2335,16 @@ public class MPU6050 {
      * @see getRotation()
      * @see MPU6050_Registers.MPU6050_RA_ACCEL_XOUT_H
      */
-    int[] getMotion6() {
-         int[] data = new int[6]; 
-         buffer = I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_ACCEL_XOUT_H, 14);
-         data[0] = (((int) buffer[0]) << 8) | buffer[1]; //ax
-         data[1] = (((int) buffer[2]) << 8) | buffer[3];//ay
-         data[2] = (((int) buffer[4]) << 8) | buffer[5];//az
-         data[3] = (((int) buffer[8]) << 8) | buffer[9];//gx
-         data[4] = (((int) buffer[10]) << 8) | buffer[11];//gx
-         data[5] = (((int) buffer[12]) << 8) | buffer[13];//gz
-         return data;
+    public int[] getMotion6() {
+        int[] data = new int[6];
+        buffer = I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_ACCEL_XOUT_H, 14);
+        data[0] = (((int) buffer[0]) << 8) | buffer[1]; //ax
+        data[1] = (((int) buffer[2]) << 8) | buffer[3];//ay
+        data[2] = (((int) buffer[4]) << 8) | buffer[5];//az
+        data[3] = (((int) buffer[8]) << 8) | buffer[9];//gx
+        data[4] = (((int) buffer[10]) << 8) | buffer[11];//gx
+        data[5] = (((int) buffer[12]) << 8) | buffer[13];//gz
+        return data;
     }
 
     /**
@@ -2361,13 +2384,13 @@ public class MPU6050 {
      * @param z 16-bit signed integer container for Z-axis acceleration
      * @see MPU6050_Registers.MPU6050_RA_GYRO_XOUT_H
      */
-    int[] getAcceleration() {
-         int[] data = new int[6]; 
-         buffer = I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_ACCEL_XOUT_H, 6);
-         data[0] = (((int) buffer[0]) << 8) | buffer[1]; //ax
-         data[1] = (((int) buffer[2]) << 8) | buffer[3];//ay
-         data[2] = (((int) buffer[4]) << 8) | buffer[5];//az
-         return data;
+    public int[] getAcceleration() {
+        int[] data = new int[3];
+        buffer = I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_ACCEL_XOUT_H, 6);
+        data[0] = (((int) buffer[0]) << 8) | buffer[1]; //ax
+        data[1] = (((int) buffer[2]) << 8) | buffer[3];//ay
+        data[2] = (((int) buffer[4]) << 8) | buffer[5];//az
+        return data;
     }
 
     /**
@@ -2377,7 +2400,7 @@ public class MPU6050 {
      * @see getMotion6()
      * @see MPU6050_Registers.MPU6050_RA_ACCEL_XOUT_H
      */
-    int getAccelerationX() {
+    public int getAccelerationX() {
         I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_ACCEL_XOUT_H, 2);
         return (((int) buffer[0]) << 8) | buffer[1];
     }
@@ -2389,7 +2412,7 @@ public class MPU6050 {
      * @see getMotion6()
      * @see MPU6050_Registers.MPU6050_RA_ACCEL_YOUT_H
      */
-    int getAccelerationY() {
+    public int getAccelerationY() {
         I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_ACCEL_YOUT_H, 2);
         return (((int) buffer[0]) << 8) | buffer[1];
     }
@@ -2401,7 +2424,7 @@ public class MPU6050 {
      * @see getMotion6()
      * @see MPU6050_Registers.MPU6050_RA_ACCEL_ZOUT_H
      */
-    int getAccelerationZ() {
+    public int getAccelerationZ() {
         I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_ACCEL_ZOUT_H, 2);
         return (((int) buffer[0]) << 8) | buffer[1];
     }
@@ -2413,7 +2436,7 @@ public class MPU6050 {
      * @return Temperature reading in 16-bit 2's complement format
      * @see MPU6050_Registers.MPU6050_RA_TEMP_OUT_H
      */
-    int getTemperature() {
+    public int getTemperature() {
         I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_TEMP_OUT_H, 2);
         return (((int) buffer[0]) << 8) | buffer[1];
     }
@@ -2452,13 +2475,13 @@ public class MPU6050 {
      * @see getMotion6()
      * @see MPU6050_Registers.MPU6050_RA_GYRO_XOUT_H
      */
-    int[] getRotation() {
-         int[] data = new int[6]; 
-         buffer = I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_GYRO_XOUT_H, 6);
-         data[0] = (((int) buffer[0]) << 8) | buffer[1]; //ax
-         data[1] = (((int) buffer[2]) << 8) | buffer[3];//ay
-         data[2] = (((int) buffer[4]) << 8) | buffer[5];//az
-         return data;
+    public int[] getRotation() {
+        int[] data = new int[3];
+        buffer = I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_GYRO_XOUT_H, 6);
+        data[0] = (((int) buffer[0]) << 8) | buffer[1]; //ax
+        data[1] = (((int) buffer[2]) << 8) | buffer[3];//ay
+        data[2] = (((int) buffer[4]) << 8) | buffer[5];//az
+        return data;
     }
 
     /**
@@ -2468,7 +2491,7 @@ public class MPU6050 {
      * @see getMotion6()
      * @see MPU6050_Registers.MPU6050_RA_GYRO_XOUT_H
      */
-    int getRotationX() {
+    public int getRotationX() {
         I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_GYRO_XOUT_H, 2);
         return (((int) buffer[0]) << 8) | buffer[1];
     }
@@ -2480,7 +2503,7 @@ public class MPU6050 {
      * @see getMotion6()
      * @see MPU6050_Registers.MPU6050_RA_GYRO_YOUT_H
      */
-    int getRotationY() {
+    public int getRotationY() {
         I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_GYRO_YOUT_H, 2);
         return (((int) buffer[0]) << 8) | buffer[1];
     }
@@ -2492,7 +2515,7 @@ public class MPU6050 {
      * @see getMotion6()
      * @see MPU6050_Registers.MPU6050_RA_GYRO_ZOUT_H
      */
-    int getRotationZ() {
+    public int getRotationZ() {
         I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_GYRO_ZOUT_H, 2);
         return (((int) buffer[0]) << 8) | buffer[1];
     }
@@ -2565,7 +2588,7 @@ public class MPU6050 {
      * REGISTER ALLOCATION FOR DYNAMIC DISABLE VS. NORMAL DISABLE: If a slave is
      * disabled at any time, the space initially allocated to the slave in the
      * EXT_SENS_DATA register, will remain associated with that slave. This is
-     * to avoid dynamic adjustment of the register allocation.
+     * to apublic void dynamic adjustment of the register allocation.
      *
      * The allocation of the EXT_SENS_DATA registers is recomputed only when (1)
      * all slaves are disabled, or (2) the I2C_MST_RST bit is set (Register
@@ -2577,7 +2600,7 @@ public class MPU6050 {
      * @param position Starting position (0-23)
      * @return Byte read from register
      */
-    byte getExternalSensorByte(int position) {
+    public byte getExternalSensorByte(int position) {
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_EXT_SENS_DATA_00 + position);
         return buffer[0];
     }
@@ -2589,7 +2612,7 @@ public class MPU6050 {
      * @return Word read from register
      * @see getExternalSensorByte()
      */
-    int getExternalSensorWord(int position) {
+    public int getExternalSensorWord(int position) {
         I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_EXT_SENS_DATA_00 + position, 2);
         return (((int) buffer[0]) << 8) | buffer[1];
     }
@@ -2601,7 +2624,7 @@ public class MPU6050 {
      * @return Double word read from registers
      * @see getExternalSensorByte()
      */
-    int getExternalSensorDWord(int position) {
+    public int getExternalSensorDWord(int position) {
         I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_EXT_SENS_DATA_00 + position, 4);
         return (((int) buffer[0]) << 24) | (((int) buffer[1]) << 16) | (((int) buffer[2]) << 8) | buffer[3];
     }
@@ -2613,7 +2636,7 @@ public class MPU6050 {
      * @return Motion detection status byte
      * @see MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS
      */
-    byte getMotionStatus() {
+    public byte getMotionStatus() {
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS);
         return buffer[0];
     }
@@ -2625,9 +2648,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS
      * @see MPU6050_Registers.MPU6050_MOTION_MOT_XNEG_BIT
      */
-    boolean getXNegMotionDetected() {
+    public boolean getXNegMotionDetected() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS, MPU6050_Registers.MPU6050_MOTION_MOT_XNEG_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2637,9 +2660,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS
      * @see MPU6050_Registers.MPU6050_MOTION_MOT_XPOS_BIT
      */
-    boolean getXPosMotionDetected() {
+    public boolean getXPosMotionDetected() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS, MPU6050_Registers.MPU6050_MOTION_MOT_XPOS_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2649,9 +2672,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS
      * @see MPU6050_Registers.MPU6050_MOTION_MOT_YNEG_BIT
      */
-    boolean getYNegMotionDetected() {
+    public boolean getYNegMotionDetected() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS, MPU6050_Registers.MPU6050_MOTION_MOT_YNEG_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2661,9 +2684,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS
      * @see MPU6050_Registers.MPU6050_MOTION_MOT_YPOS_BIT
      */
-    boolean getYPosMotionDetected() {
+    public boolean getYPosMotionDetected() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS, MPU6050_Registers.MPU6050_MOTION_MOT_YPOS_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2673,9 +2696,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS
      * @see MPU6050_Registers.MPU6050_MOTION_MOT_ZNEG_BIT
      */
-    boolean getZNegMotionDetected() {
+    public boolean getZNegMotionDetected() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS, MPU6050_Registers.MPU6050_MOTION_MOT_ZNEG_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2685,9 +2708,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS
      * @see MPU6050_Registers.MPU6050_MOTION_MOT_ZPOS_BIT
      */
-    boolean getZPosMotionDetected() {
+    public boolean getZPosMotionDetected() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS, MPU6050_Registers.MPU6050_MOTION_MOT_ZPOS_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2697,9 +2720,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS
      * @see MPU6050_Registers.MPU6050_MOTION_MOT_ZRMOT_BIT
      */
-    boolean getZeroMotionDetected() {
+    public boolean getZeroMotionDetected() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_MOT_DETECT_STATUS, MPU6050_Registers.MPU6050_MOTION_MOT_ZRMOT_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     // I2C_SLV*_DO register
@@ -2713,7 +2736,7 @@ public class MPU6050 {
      * @param data Byte to write
      * @see MPU6050_Registers.MPU6050_RA_I2C_SLV0_DO
      */
-    void setSlaveOutputByte(byte num, byte data) {
+    public void setSlaveOutputByte(byte num, byte data) {
         if (num > 3) {
             return;
         }
@@ -2731,9 +2754,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_DELAY_CTRL
      * @see MPU6050_Registers.MPU6050_DELAYCTRL_DELAY_ES_SHADOW_BIT
      */
-    boolean getExternalShadowDelayEnabled() {
+    public boolean getExternalShadowDelayEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_MST_DELAY_CTRL, MPU6050_Registers.MPU6050_DELAYCTRL_DELAY_ES_SHADOW_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2744,11 +2767,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_DELAY_CTRL
      * @see MPU6050_Registers.MPU6050_DELAYCTRL_DELAY_ES_SHADOW_BIT
      */
-    void setExternalShadowDelayEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_DELAY_CTRL, MPU6050_Registers.MPU6050_DELAYCTRL_DELAY_ES_SHADOW_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_DELAY_CTRL, MPU6050_Registers.MPU6050_DELAYCTRL_DELAY_ES_SHADOW_BIT, (byte)0);
+    public void setExternalShadowDelayEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_DELAY_CTRL, MPU6050_Registers.MPU6050_DELAYCTRL_DELAY_ES_SHADOW_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_DELAY_CTRL, MPU6050_Registers.MPU6050_DELAYCTRL_DELAY_ES_SHADOW_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -2771,13 +2795,13 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_DELAY_CTRL
      * @see MPU6050_Registers.MPU6050_DELAYCTRL_I2C_SLV0_DLY_EN_BIT
      */
-    boolean getSlaveDelayEnabled(byte num) {
+    public boolean getSlaveDelayEnabled(byte num) {
         // MPU6050_Registers.MPU6050_DELAYCTRL_I2C_SLV4_DLY_EN_BIT is 4, SLV3 is 3, etc.
         if (num > 4) {
             return false;
         }
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_I2C_MST_DELAY_CTRL, num);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2788,11 +2812,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_I2C_MST_DELAY_CTRL
      * @see MPU6050_Registers.MPU6050_DELAYCTRL_I2C_SLV0_DLY_EN_BIT
      */
-    void setSlaveDelayEnabled(byte num, boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_DELAY_CTRL, num, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_DELAY_CTRL, num, (byte)0);
+    public void setSlaveDelayEnabled(byte num, boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_DELAY_CTRL, num, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_I2C_MST_DELAY_CTRL, num, (byte) 0);
+        }
     }
 
     // SIGNAL_PATH_RESET register
@@ -2803,8 +2828,8 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_SIGNAL_PATH_RESET
      * @see MPU6050_Registers.MPU6050_PATHRESET_GYRO_RESET_BIT
      */
-    void resetGyroscopePath() {
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_SIGNAL_PATH_RESET, MPU6050_Registers.MPU6050_PATHRESET_GYRO_RESET_BIT, (byte)1);
+    public void resetGyroscopePath() {
+        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_SIGNAL_PATH_RESET, MPU6050_Registers.MPU6050_PATHRESET_GYRO_RESET_BIT, (byte) 1);
     }
 
     /**
@@ -2815,8 +2840,8 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_SIGNAL_PATH_RESET
      * @see MPU6050_Registers.MPU6050_PATHRESET_ACCEL_RESET_BIT
      */
-    void resetAccelerometerPath() {
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_SIGNAL_PATH_RESET, MPU6050_Registers.MPU6050_PATHRESET_ACCEL_RESET_BIT, (byte)1);
+    public void resetAccelerometerPath() {
+        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_SIGNAL_PATH_RESET, MPU6050_Registers.MPU6050_PATHRESET_ACCEL_RESET_BIT, (byte) 1);
     }
 
     /**
@@ -2827,8 +2852,8 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_SIGNAL_PATH_RESET
      * @see MPU6050_Registers.MPU6050_PATHRESET_TEMP_RESET_BIT
      */
-    void resetTemperaturePath() {
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_SIGNAL_PATH_RESET, MPU6050_Registers.MPU6050_PATHRESET_TEMP_RESET_BIT, (byte)1);
+    public void resetTemperaturePath() {
+        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_SIGNAL_PATH_RESET, MPU6050_Registers.MPU6050_PATHRESET_TEMP_RESET_BIT, (byte) 1);
     }
 
     // MOT_DETECT_CTRL register
@@ -2848,7 +2873,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_MOT_DETECT_CTRL
      * @see MPU6050_Registers.MPU6050_DETECT_ACCEL_ON_DELAY_BIT
      */
-    byte getAccelerometerPowerOnDelay() {
+    public byte getAccelerometerPowerOnDelay() {
         buffer[0] = (byte) I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_MOT_DETECT_CTRL, MPU6050_Registers.MPU6050_DETECT_ACCEL_ON_DELAY_BIT, MPU6050_Registers.MPU6050_DETECT_ACCEL_ON_DELAY_LENGTH);
         return buffer[0];
     }
@@ -2861,7 +2886,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_MOT_DETECT_CTRL
      * @see MPU6050_Registers.MPU6050_DETECT_ACCEL_ON_DELAY_BIT
      */
-    void setAccelerometerPowerOnDelay(byte delay) {
+    public void setAccelerometerPowerOnDelay(byte delay) {
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_MOT_DETECT_CTRL, MPU6050_Registers.MPU6050_DETECT_ACCEL_ON_DELAY_BIT, MPU6050_Registers.MPU6050_DETECT_ACCEL_ON_DELAY_LENGTH, delay);
     }
 
@@ -2892,7 +2917,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_MOT_DETECT_CTRL
      * @see MPU6050_Registers.MPU6050_DETECT_FF_COUNT_BIT
      */
-    byte getFreefallDetectionCounterDecrement() {
+    public byte getFreefallDetectionCounterDecrement() {
         buffer[0] = (byte) I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_MOT_DETECT_CTRL, MPU6050_Registers.MPU6050_DETECT_FF_COUNT_BIT, MPU6050_Registers.MPU6050_DETECT_FF_COUNT_LENGTH);
         return buffer[0];
     }
@@ -2905,7 +2930,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_MOT_DETECT_CTRL
      * @see MPU6050_Registers.MPU6050_DETECT_FF_COUNT_BIT
      */
-    void setFreefallDetectionCounterDecrement(byte decrement) {
+    public void setFreefallDetectionCounterDecrement(byte decrement) {
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_MOT_DETECT_CTRL, MPU6050_Registers.MPU6050_DETECT_FF_COUNT_BIT, MPU6050_Registers.MPU6050_DETECT_FF_COUNT_LENGTH, decrement);
     }
 
@@ -2933,7 +2958,7 @@ public class MPU6050 {
      * please refer to Registers 29 to 32.
      *
      */
-    byte getMotionDetectionCounterDecrement() {
+    public byte getMotionDetectionCounterDecrement() {
         buffer[0] = (byte) I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_MOT_DETECT_CTRL, MPU6050_Registers.MPU6050_DETECT_MOT_COUNT_BIT, MPU6050_Registers.MPU6050_DETECT_MOT_COUNT_LENGTH);
         return buffer[0];
     }
@@ -2946,7 +2971,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_MOT_DETECT_CTRL
      * @see MPU6050_Registers.MPU6050_DETECT_MOT_COUNT_BIT
      */
-    void setMotionDetectionCounterDecrement(byte decrement) {
+    public void setMotionDetectionCounterDecrement(byte decrement) {
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_MOT_DETECT_CTRL, MPU6050_Registers.MPU6050_DETECT_MOT_COUNT_BIT, MPU6050_Registers.MPU6050_DETECT_MOT_COUNT_LENGTH, decrement);
     }
 
@@ -2961,9 +2986,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_USER_CTRL
      * @see MPU6050_Registers.MPU6050_USERCTRL_FIFO_EN_BIT
      */
-    boolean getFIFOEnabled() {
+    public boolean getFIFOEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_FIFO_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -2974,11 +2999,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_USER_CTRL
      * @see MPU6050_Registers.MPU6050_USERCTRL_FIFO_EN_BIT
      */
-    void setFIFOEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_FIFO_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_FIFO_EN_BIT, (byte)0);
+    public void setFIFOEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_FIFO_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_FIFO_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -2993,9 +3019,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_USER_CTRL
      * @see MPU6050_Registers.MPU6050_USERCTRL_I2C_MST_EN_BIT
      */
-    boolean getI2CMasterModeEnabled() {
+    public boolean getI2CMasterModeEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_I2C_MST_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -3006,11 +3032,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_USER_CTRL
      * @see MPU6050_Registers.MPU6050_USERCTRL_I2C_MST_EN_BIT
      */
-    void setI2CMasterModeEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_I2C_MST_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_I2C_MST_EN_BIT, (byte)0);
+    public void setI2CMasterModeEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_I2C_MST_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_I2C_MST_EN_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -3018,11 +3045,12 @@ public class MPU6050 {
      * SPI interface will be enabled in place of the disabled primary I2C
      * interface.
      */
-    void switchSPIEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_I2C_IF_DIS_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_I2C_IF_DIS_BIT, (byte)0);
+    public void switchSPIEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_I2C_IF_DIS_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_I2C_IF_DIS_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -3033,8 +3061,8 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_USER_CTRL
      * @see MPU6050_Registers.MPU6050_USERCTRL_FIFO_RESET_BIT
      */
-    void resetFIFO() {
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_FIFO_RESET_BIT, (byte)1);
+    public void resetFIFO() {
+        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_FIFO_RESET_BIT, (byte) 1);
     }
 
     /**
@@ -3045,8 +3073,8 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_USER_CTRL
      * @see MPU6050_Registers.MPU6050_USERCTRL_I2C_MST_RESET_BIT
      */
-    void resetI2CMaster() {
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_I2C_MST_RESET_BIT, (byte)1);
+    public void resetI2CMaster() {
+        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_I2C_MST_RESET_BIT, (byte) 1);
     }
 
     /**
@@ -3061,8 +3089,8 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_USER_CTRL
      * @see MPU6050_Registers.MPU6050_USERCTRL_SIG_COND_RESET_BIT
      */
-    void resetSensors() {
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_SIG_COND_RESET_BIT, (byte)1);
+    public void resetSensors() {
+        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_SIG_COND_RESET_BIT, (byte) 1);
     }
 
     // PWR_MGMT_1 register
@@ -3073,8 +3101,8 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_1
      * @see MPU6050_Registers.MPU6050_PWR1_DEVICE_RESET_BIT
      */
-    void reset() {
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_DEVICE_RESET_BIT, (byte)1);
+    public void reset() {
+        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_DEVICE_RESET_BIT, (byte) 1);
     }
 
     /**
@@ -3089,9 +3117,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_1
      * @see MPU6050_Registers.MPU6050_PWR1_SLEEP_BIT
      */
-    boolean getSleepEnabled() {
+    public boolean getSleepEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_SLEEP_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -3102,11 +3130,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_1
      * @see MPU6050_Registers.MPU6050_PWR1_SLEEP_BIT
      */
-    void setSleepEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_SLEEP_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_SLEEP_BIT, (byte)0);
+    public void setSleepEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_SLEEP_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_SLEEP_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -3121,7 +3150,7 @@ public class MPU6050 {
      */
     boolean getWakeCycleEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_CYCLE_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -3132,11 +3161,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_1
      * @see MPU6050_Registers.MPU6050_PWR1_CYCLE_BIT
      */
-    void setWakeCycleEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_CYCLE_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_CYCLE_BIT, (byte)0);
+    public void setWakeCycleEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_CYCLE_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_CYCLE_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -3152,7 +3182,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_1
      * @see MPU6050_Registers.MPU6050_PWR1_TEMP_DIS_BIT
      */
-    boolean getTempSensorEnabled() {
+    public boolean getTempSensorEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_TEMP_DIS_BIT);
         return buffer[0] == 0; // 1 is actually disabled here
     }
@@ -3168,11 +3198,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_1
      * @see MPU6050_Registers.MPU6050_PWR1_TEMP_DIS_BIT
      */
-    void setTempSensorEnabled(boolean enabled) {
-        if(!enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_TEMP_DIS_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_TEMP_DIS_BIT, (byte)0);
+    public void setTempSensorEnabled(boolean enabled) {
+        if (!enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_TEMP_DIS_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_TEMP_DIS_BIT, (byte) 0);
+        }
         // 1 is actually disabled here
     }
 
@@ -3184,7 +3215,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_PWR1_CLKSEL_BIT
      * @see MPU6050_Registers.MPU6050_PWR1_CLKSEL_LENGTH
      */
-    byte getClockSource() {
+    public byte getClockSource() {
         buffer[0] = (byte) I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_CLKSEL_BIT, MPU6050_Registers.MPU6050_PWR1_CLKSEL_LENGTH);
         return buffer[0];
     }
@@ -3221,7 +3252,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_PWR1_CLKSEL_BIT
      * @see MPU6050_Registers.MPU6050_PWR1_CLKSEL_LENGTH
      */
-    void setClockSource(byte source) {
+    public void setClockSource(byte source) {
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_PWR_MGMT_1, MPU6050_Registers.MPU6050_PWR1_CLKSEL_BIT, MPU6050_Registers.MPU6050_PWR1_CLKSEL_LENGTH, source);
     }
 
@@ -3249,7 +3280,7 @@ public class MPU6050 {
      * @return Current wake frequency
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_2
      */
-    byte getWakeFrequency() {
+    public byte getWakeFrequency() {
         buffer[0] = (byte) I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_LP_WAKE_CTRL_BIT, MPU6050_Registers.MPU6050_PWR2_LP_WAKE_CTRL_LENGTH);
         return buffer[0];
     }
@@ -3260,7 +3291,7 @@ public class MPU6050 {
      * @param frequency New wake frequency
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_2
      */
-    void setWakeFrequency(byte frequency) {
+    public void setWakeFrequency(byte frequency) {
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_LP_WAKE_CTRL_BIT, MPU6050_Registers.MPU6050_PWR2_LP_WAKE_CTRL_LENGTH, frequency);
     }
 
@@ -3272,9 +3303,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_2
      * @see MPU6050_Registers.MPU6050_PWR2_STBY_XA_BIT
      */
-    boolean getStandbyXAccelEnabled() {
+    public boolean getStandbyXAccelEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_XA_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -3285,11 +3316,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_2
      * @see MPU6050_Registers.MPU6050_PWR2_STBY_XA_BIT
      */
-    void setStandbyXAccelEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_XA_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_XA_BIT, (byte)0);
+    public void setStandbyXAccelEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_XA_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_XA_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -3300,9 +3332,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_2
      * @see MPU6050_Registers.MPU6050_PWR2_STBY_YA_BIT
      */
-    boolean getStandbyYAccelEnabled() {
+    public boolean getStandbyYAccelEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_YA_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -3313,11 +3345,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_2
      * @see MPU6050_Registers.MPU6050_PWR2_STBY_YA_BIT
      */
-    void setStandbyYAccelEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_YA_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_YA_BIT, (byte)0);
+    public void setStandbyYAccelEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_YA_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_YA_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -3328,9 +3361,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_2
      * @see MPU6050_Registers.MPU6050_PWR2_STBY_ZA_BIT
      */
-    boolean getStandbyZAccelEnabled() {
+    public boolean getStandbyZAccelEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_ZA_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -3341,11 +3374,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_2
      * @see MPU6050_Registers.MPU6050_PWR2_STBY_ZA_BIT
      */
-    void setStandbyZAccelEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_ZA_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_ZA_BIT, (byte)0);
+    public void setStandbyZAccelEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_ZA_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_ZA_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -3356,9 +3390,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_2
      * @see MPU6050_Registers.MPU6050_PWR2_STBY_XG_BIT
      */
-    boolean getStandbyXGyroEnabled() {
+    public boolean getStandbyXGyroEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_XG_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -3369,11 +3403,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_2
      * @see MPU6050_Registers.MPU6050_PWR2_STBY_XG_BIT
      */
-    void setStandbyXGyroEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_XG_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_XG_BIT, (byte)0);
+    public void setStandbyXGyroEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_XG_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_XG_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -3384,9 +3419,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_2
      * @see MPU6050_Registers.MPU6050_PWR2_STBY_YG_BIT
      */
-    boolean getStandbyYGyroEnabled() {
+    public boolean getStandbyYGyroEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_YG_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -3397,11 +3432,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_2
      * @see MPU6050_Registers.MPU6050_PWR2_STBY_YG_BIT
      */
-    void setStandbyYGyroEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_YG_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_YG_BIT, (byte)0);
+    public void setStandbyYGyroEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_YG_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_YG_BIT, (byte) 0);
+        }
     }
 
     /**
@@ -3412,9 +3448,9 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_2
      * @see MPU6050_Registers.MPU6050_PWR2_STBY_ZG_BIT
      */
-    boolean getStandbyZGyroEnabled() {
+    public boolean getStandbyZGyroEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_ZG_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     /**
@@ -3425,11 +3461,12 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_RA_PWR_MGMT_2
      * @see MPU6050_Registers.MPU6050_PWR2_STBY_ZG_BIT
      */
-    void setStandbyZGyroEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_ZG_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_ZG_BIT, (byte)0);
+    public void setStandbyZGyroEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_ZG_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_PWR_MGMT_2, MPU6050_Registers.MPU6050_PWR2_STBY_ZG_BIT, (byte) 0);
+        }
     }
 
     // FIFO_COUNT* registers
@@ -3442,7 +3479,7 @@ public class MPU6050 {
      *
      * @return Current FIFO buffer size
      */
-    int getFIFOCount() {
+    public int getFIFOCount() {
         I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_FIFO_COUNTH, 2);
         return (((int) buffer[0]) << 8) | buffer[1];
     }
@@ -3474,18 +3511,18 @@ public class MPU6050 {
      *
      * @return Byte from FIFO buffer
      */
-    byte getFIFOByte() {
+    public byte getFIFOByte() {
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_FIFO_R_W);
         return buffer[0];
     }
 
-    byte[] getFIFOBytes(byte[] data, byte length) {
-         if (length > 0) {
+    public byte[] getFIFOBytes(byte[] data, byte length) {
+        if (length > 0) {
             data = I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_FIFO_R_W, length);
         } else {
-             data = null;
+            data = null;
         }
-         return data;
+        return data;
     }
 
     /**
@@ -3494,7 +3531,7 @@ public class MPU6050 {
      * @see getFIFOByte()
      * @see MPU6050_Registers.MPU6050_RA_FIFO_R_W
      */
-    void setFIFOByte(byte data) {
+    public void setFIFOByte(byte data) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_FIFO_R_W, data);
     }
 
@@ -3508,7 +3545,7 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_WHO_AM_I_BIT
      * @see MPU6050_Registers.MPU6050_WHO_AM_I_LENGTH
      */
-    byte getDeviceID() {
+    public byte getDeviceID() {
         buffer[0] = (byte) I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_WHO_AM_I, MPU6050_Registers.MPU6050_WHO_AM_I_BIT, MPU6050_Registers.MPU6050_WHO_AM_I_LENGTH);
         return buffer[0];
     }
@@ -3523,80 +3560,81 @@ public class MPU6050 {
      * @see MPU6050_Registers.MPU6050_WHO_AM_I_BIT
      * @see MPU6050_Registers.MPU6050_WHO_AM_I_LENGTH
      */
-    void setDeviceID(byte id) {
+    public void setDeviceID(byte id) {
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_WHO_AM_I, MPU6050_Registers.MPU6050_WHO_AM_I_BIT, MPU6050_Registers.MPU6050_WHO_AM_I_LENGTH, id);
     }
 
     // ======== UNDOCUMENTED/DMP REGISTERS/METHODS ========
     // XG_OFFS_TC register
-    byte getOTPBankValid() {
+    public byte getOTPBankValid() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_XG_OFFS_TC, MPU6050_Registers.MPU6050_TC_OTP_BNK_VLD_BIT);
         return buffer[0];
     }
 
-    void setOTPBankValid(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_XG_OFFS_TC, MPU6050_Registers.MPU6050_TC_OTP_BNK_VLD_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_XG_OFFS_TC, MPU6050_Registers.MPU6050_TC_OTP_BNK_VLD_BIT, (byte)0);
+    public void setOTPBankValid(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_XG_OFFS_TC, MPU6050_Registers.MPU6050_TC_OTP_BNK_VLD_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_XG_OFFS_TC, MPU6050_Registers.MPU6050_TC_OTP_BNK_VLD_BIT, (byte) 0);
+        }
     }
 
-    int getXGyroOffsetTC() {
+    public int getXGyroOffsetTC() {
         buffer[0] = (byte) I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_XG_OFFS_TC, MPU6050_Registers.MPU6050_TC_OFFSET_BIT, MPU6050_Registers.MPU6050_TC_OFFSET_LENGTH);
         return buffer[0];
     }
 
-    void setXGyroOffsetTC(int offset) {
+    public void setXGyroOffsetTC(int offset) {
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_XG_OFFS_TC, MPU6050_Registers.MPU6050_TC_OFFSET_BIT, MPU6050_Registers.MPU6050_TC_OFFSET_LENGTH, offset);
     }
 
     // YG_OFFS_TC register
-    int getYGyroOffsetTC() {
+    public int getYGyroOffsetTC() {
         buffer[0] = (byte) I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_YG_OFFS_TC, MPU6050_Registers.MPU6050_TC_OFFSET_BIT, MPU6050_Registers.MPU6050_TC_OFFSET_LENGTH);
         return buffer[0];
     }
 
-    void setYGyroOffsetTC(int offset) {
+    public void setYGyroOffsetTC(int offset) {
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_YG_OFFS_TC, MPU6050_Registers.MPU6050_TC_OFFSET_BIT, MPU6050_Registers.MPU6050_TC_OFFSET_LENGTH, offset);
     }
 
     // ZG_OFFS_TC register
-    int getZGyroOffsetTC() {
+    public int getZGyroOffsetTC() {
         buffer[0] = (byte) I2Cdev.readBits(MPU6050_Registers.MPU6050_RA_ZG_OFFS_TC, MPU6050_Registers.MPU6050_TC_OFFSET_BIT, MPU6050_Registers.MPU6050_TC_OFFSET_LENGTH);
         return buffer[0];
     }
 
-    void setZGyroOffsetTC(int offset) {
+    public void setZGyroOffsetTC(int offset) {
         I2Cdev.writeBits(MPU6050_Registers.MPU6050_RA_ZG_OFFS_TC, MPU6050_Registers.MPU6050_TC_OFFSET_BIT, MPU6050_Registers.MPU6050_TC_OFFSET_LENGTH, offset);
     }
 
     // X_FINE_GAIN register
-    int getXFineGain() {
+    public int getXFineGain() {
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_X_FINE_GAIN);
         return buffer[0];
     }
 
-    void setXFineGain(int gain) {
+    public void setXFineGain(int gain) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_X_FINE_GAIN, (byte) gain);
     }
 
     // Y_FINE_GAIN register
-    int getYFineGain() {
+    public int getYFineGain() {
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_Y_FINE_GAIN);
         return buffer[0];
     }
 
-    void setYFineGain(int gain) {
+    public void setYFineGain(int gain) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_Y_FINE_GAIN, (byte) gain);
     }
 
     // Z_FINE_GAIN register
-    int getZFineGain() {
+    public int getZFineGain() {
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_Z_FINE_GAIN);
         return buffer[0];
     }
 
-    void setZFineGain(int gain) {
+    public void setZFineGain(int gain) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_Z_FINE_GAIN, (byte) gain);
     }
 
@@ -3606,7 +3644,7 @@ public class MPU6050 {
 //        return (((int) buffer[0]) << 8) | buffer[1];
 //    }
 //
-//    void setXAccelOffset(int offset) {
+//    public void setXAccelOffset(int offset) {
 //        I2Cdev.writeWord(MPU6050_Registers.MPU6050_RA_XA_OFFS_H, offset);
 //    }
 //
@@ -3616,7 +3654,7 @@ public class MPU6050 {
 //        return (((int) buffer[0]) << 8) | buffer[1];
 //    }
 //
-//    void setYAccelOffset(int offset) {
+//    public void setYAccelOffset(int offset) {
 //        I2Cdev.writeWord(MPU6050_Registers.MPU6050_RA_YA_OFFS_H, offset);
 //    }
 //
@@ -3626,7 +3664,7 @@ public class MPU6050 {
 //        return (((int) buffer[0]) << 8) | buffer[1];
 //    }
 //
-//    void setZAccelOffset(int offset) {
+//    public void setZAccelOffset(int offset) {
 //        I2Cdev.writeWord(MPU6050_Registers.MPU6050_RA_ZA_OFFS_H, offset);
 //    }
 //
@@ -3636,7 +3674,7 @@ public class MPU6050 {
 //        return (((int) buffer[0]) << 8) | buffer[1];
 //    }
 //
-//    void setXGyroOffset(int offset) {
+//    public void setXGyroOffset(int offset) {
 //        I2Cdev.writeWord(MPU6050_Registers.MPU6050_RA_XG_OFFS_USRH, offset);
 //    }
 //
@@ -3646,7 +3684,7 @@ public class MPU6050 {
 //        return (((int) buffer[0]) << 8) | buffer[1];
 //    }
 //
-//    void setYGyroOffset(int offset) {
+//    public void setYGyroOffset(int offset) {
 //        I2Cdev.writeWord(MPU6050_Registers.MPU6050_RA_YG_OFFS_USRH, offset);
 //    }
 //
@@ -3656,96 +3694,98 @@ public class MPU6050 {
 //        return (((int) buffer[0]) << 8) | buffer[1];
 //    }
 //
-//    void setZGyroOffset(int offset) {
+//    public void setZGyroOffset(int offset) {
 //        I2Cdev.writeWord(MPU6050_Registers.MPU6050_RA_ZG_OFFS_USRH, offset);
 //    }
-
     // INT_ENABLE register (DMP functions)
-    boolean getIntPLLReadyEnabled() {
+    public boolean getIntPLLReadyEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_PLL_RDY_INT_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
-    void setIntPLLReadyEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_PLL_RDY_INT_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_PLL_RDY_INT_BIT, (byte)0);
+    public void setIntPLLReadyEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_PLL_RDY_INT_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_PLL_RDY_INT_BIT, (byte) 0);
+        }
     }
 
     boolean getIntDMPEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_DMP_INT_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
-    void setIntDMPEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_DMP_INT_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_DMP_INT_BIT, (byte)0);
+    public void setIntDMPEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_DMP_INT_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_DMP_INT_BIT, (byte) 0);
+        }
     }
 
     // DMP_INT_STATUS
-    boolean getDMPInt5Status() {
+    public boolean getDMPInt5Status() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_DMP_INT_STATUS, MPU6050_Registers.MPU6050_DMPINT_5_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
-    boolean getDMPInt4Status() {
+    public boolean getDMPInt4Status() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_DMP_INT_STATUS, MPU6050_Registers.MPU6050_DMPINT_4_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
-    boolean getDMPInt3Status() {
+    public boolean getDMPInt3Status() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_DMP_INT_STATUS, MPU6050_Registers.MPU6050_DMPINT_3_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
-    boolean getDMPInt2Status() {
+    public boolean getDMPInt2Status() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_DMP_INT_STATUS, MPU6050_Registers.MPU6050_DMPINT_2_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
-    boolean getDMPInt1Status() {
+    public boolean getDMPInt1Status() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_DMP_INT_STATUS, MPU6050_Registers.MPU6050_DMPINT_1_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
-    boolean getDMPInt0Status() {
+    public boolean getDMPInt0Status() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_DMP_INT_STATUS, MPU6050_Registers.MPU6050_DMPINT_0_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     // INT_STATUS register (DMP functions)
-    boolean getIntPLLReadyStatus() {
+    public boolean getIntPLLReadyStatus() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_STATUS, MPU6050_Registers.MPU6050_INTERRUPT_PLL_RDY_INT_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
-    boolean getIntDMPStatus() {
+    public boolean getIntDMPStatus() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_STATUS, MPU6050_Registers.MPU6050_INTERRUPT_DMP_INT_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
     // USER_CTRL register (DMP functions)
-    boolean getDMPEnabled() {
+    public boolean getDMPEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_DMP_EN_BIT);
-        return buffer[0]==1;
+        return buffer[0] == 1;
     }
 
-    void setDMPEnabled(boolean enabled) {
-        if(enabled)
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_DMP_EN_BIT, (byte)1);
-        else
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_DMP_EN_BIT, (byte)0);
+    public void setDMPEnabled(boolean enabled) {
+        if (enabled) {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_DMP_EN_BIT, (byte) 1);
+        } else {
+            I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_DMP_EN_BIT, (byte) 0);
+        }
     }
 
-    void resetDMP() {
-        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_DMP_RESET_BIT, (byte)1);
+    public void resetDMP() {
+        I2Cdev.writeBit(MPU6050_Registers.MPU6050_RA_USER_CTRL, MPU6050_Registers.MPU6050_USERCTRL_DMP_RESET_BIT, (byte) 1);
     }
 
     // BANK_SEL register
-    void setMemoryBank(byte bank, boolean prefetchEnabled, boolean userBank) {
+    public void setMemoryBank(byte bank, boolean prefetchEnabled, boolean userBank) {
         bank &= 0x1F;
         if (userBank) {
             bank |= 0x20;
@@ -3757,22 +3797,22 @@ public class MPU6050 {
     }
 
     // MEM_START_ADDR register
-    void setMemoryStartAddress(byte address) {
+    public void setMemoryStartAddress(byte address) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_MEM_START_ADDR, address);
     }
 
     // MEM_R_W register
-    byte readMemoryByte() {
+    public byte readMemoryByte() {
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_MEM_R_W);
         return buffer[0];
     }
 
-    void writeMemoryByte(byte data) {
+    public void writeMemoryByte(byte data) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_MEM_R_W, data);
     }
 
-    byte[] readMemoryBlock(byte[] data, int dataSize, byte bank, byte address ) {
-         setMemoryBank(bank, false, false);
+    public byte[] readMemoryBlock(byte[] data, int dataSize, byte bank, byte address) {
+        setMemoryBank(bank, false, false);
         setMemoryStartAddress(address);
         byte chunkSize;
         for (int i = 0; i < dataSize;) {
@@ -3790,10 +3830,11 @@ public class MPU6050 {
             }
 
             // read the chunk of data as specified
-            byte[] d =  I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_MEM_R_W, chunkSize);
-            for (int j = 0; j < d.length; j++)
-                data[i+j] = d[j];
-            
+            byte[] d = I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_MEM_R_W, chunkSize);
+            for (int j = 0; j < d.length; j++) {
+                data[i + j] = d[j];
+            }
+
             // increase byte index by [chunkSize]
             i += chunkSize;
 
@@ -3805,7 +3846,7 @@ public class MPU6050 {
                 if (address == 0) {
                     bank++;
                 }
-                setMemoryBank(bank,false, false);
+                setMemoryBank(bank, false, false);
                 setMemoryStartAddress(address);
             }
         }
@@ -4020,22 +4061,22 @@ public class MPU6050 {
 //    }
 
     // DMP_CFG_1 register
-    byte getDMPConfig1() {
+    public byte getDMPConfig1() {
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_DMP_CFG_1);
         return buffer[0];
     }
 
-    void setDMPConfig1(byte config) {
+    public void setDMPConfig1(byte config) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_DMP_CFG_1, config);
     }
 
     // DMP_CFG_2 register
-    byte getDMPConfig2() {
+    public byte getDMPConfig2() {
         I2Cdev.readByte(MPU6050_Registers.MPU6050_RA_DMP_CFG_2);
         return buffer[0];
     }
 
-    void setDMPConfig2(byte config) {
+    public void setDMPConfig2(byte config) {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_DMP_CFG_2, config);
     }
 
