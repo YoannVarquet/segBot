@@ -25,6 +25,7 @@ public class MPUUnitaryTest {
      */
     public static void main(String[] args) {
         mpu = new MPU6050();
+        mpu.calibration();
         if (mpu.testConnection()) {
             System.out.println("MPU Connected");
         } else {
@@ -38,13 +39,13 @@ public class MPUUnitaryTest {
             try {
                 int[] acc = mpu.getAcceleration();
                 int[] gyr = mpu.getRotation();
-                System.out.println("ax: " + acc[0]);
-                System.out.println("ay: " + acc[1]);
-                System.out.println("az: " + acc[2]);
-                System.out.println("gx: " + acc[0]);
-                System.out.println("gy: " + acc[1]);
-                System.out.println("gz: " + acc[2]);
-                System.out.println();
+//                System.out.println("ax: " + acc[0]);
+//                System.out.println("ay: " + acc[1]);
+//                System.out.println("az: " + acc[2]);
+//                System.out.println("gx: " + acc[0]);
+//                System.out.println("gy: " + acc[1]);
+//                System.out.println("gz: " + acc[2]);
+//                System.out.println();
                 ComplementaryFilter(acc,gyr);
                 Thread.sleep(100);
                 p1.updatePlot(acc[0], acc[1], acc[2]);

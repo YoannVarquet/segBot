@@ -69,6 +69,154 @@ public final class MPU6050 {
         setFullScaleGyroRange((byte) MPU6050_Registers.MPU6050_GYRO_FS_250);
         setFullScaleAccelRange((byte) MPU6050_Registers.MPU6050_ACCEL_FS_2);
         setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
+
+    }
+
+    public void calibration() {
+        int n = 200;
+        int[] offset = getOffsets(true);
+        int[] val = averageReadings(n,true);
+
+        while (checkReading("z", 10)) {
+            setOffsets(val);
+            offset = getOffsets(true);
+        }
+        while (checkReading("y", 10)) {
+            setOffsets(val);
+            offset = getOffsets(true);
+        }
+        while (checkReading("x", 10)) {
+            setOffsets(val);
+            offset = getOffsets(true);
+        }
+    }
+
+    private boolean checkReading(String gravityAxis, int err) {
+        int[] val = averageReadings(200,true);
+        if (gravityAxis.equalsIgnoreCase("x")) {
+            if (Math.abs(16384 - val[0]) > err) {
+                return false;
+            }
+            if (Math.abs(0 - val[1]) > err) {
+                return false;
+            }
+            if (Math.abs(0 - val[2]) > err) {
+                return false;
+            }
+            if (Math.abs(0 - val[3]) > err) {
+                return false;
+            }
+            if (Math.abs(0 - val[4]) > err) {
+                return false;
+            }
+            if (Math.abs(0 - val[5]) > err) {
+                return false;
+            }
+            return true;
+        } else if (gravityAxis.equalsIgnoreCase("y")) {
+            if (Math.abs(0 - val[0]) > err) {
+                return false;
+            }
+            if (Math.abs(16384 - val[1]) > err) {
+                return false;
+            }
+            if (Math.abs(0 - val[2]) > err) {
+                return false;
+            }
+            if (Math.abs(0 - val[3]) > err) {
+                return false;
+            }
+            if (Math.abs(0 - val[4]) > err) {
+                return false;
+            }
+            if (Math.abs(0 - val[5]) > err) {
+                return false;
+            }
+            return true;
+        } else {
+            if (Math.abs(0 - val[0]) > err) {
+                return false;
+            }
+            if (Math.abs(0 - val[1]) > err) {
+                return false;
+            }
+            if (Math.abs(16384 - val[2]) > err) {
+                return false;
+            }
+            if (Math.abs(0 - val[3]) > err) {
+                return false;
+            }
+            if (Math.abs(0 - val[4]) > err) {
+                return false;
+            }
+            if (Math.abs(0 - val[5]) > err) {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    public void setOffsets(int[] val) {
+        setXAccelOffset(0 - val[0]);
+        setYAccelOffset(0 - val[1]);
+        setZAccelOffset(16384 - val[2]);
+        setXGyroOffset(0 - val[3]);
+        setYGyroOffset(0 - val[4]);
+        setZGyroOffset(0 - val[5]);
+    }
+
+    public int[] averageReadings(int n, boolean verbose) {
+
+        int[] val = new int[6];
+        for (int i = 0; i < n; i++) {
+            try {
+                Thread.sleep(5);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MPU6050.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            val[0] += this.getAccelerationX();
+            val[1] += this.getAccelerationY();
+            val[2] += this.getAccelerationZ();
+            val[3] += this.getRotationX();
+            val[4] += this.getRotationY();
+            val[5] += this.getRotationZ();
+        }
+        val[0] /= n;
+        val[1] /= n;
+        val[2] /= n;
+        val[3] /= n;
+        val[4] /= n;
+        val[5] /= n;
+        if (verbose) {
+            System.out.println("ax: " + val[0]);
+            System.out.println("ay: " + val[1]);
+            System.out.println("az: " + val[2]);
+            System.out.println("gx: " + val[0]);
+            System.out.println("gy: " + val[1]);
+            System.out.println("gz: " + val[2]);
+            System.out.println();
+        }
+        return val;
+    }
+
+    public int[] getOffsets(boolean verbose) {
+        int[] offsets = new int[6];
+        offsets[0] = this.getXAccelOffset();
+        offsets[1] = this.getYAccelOffset();
+        offsets[2] = this.getZAccelOffset();
+        offsets[3] = this.getXGyroOffset();
+        offsets[4] = this.getYGyroOffset();
+        offsets[5] = this.getZGyroOffset();
+        if (verbose) {
+            System.out.println("axOff: " + offsets[0]);
+            System.out.println("ayOff: " + offsets[1]);
+            System.out.println("azOff: " + offsets[2]);
+            System.out.println("gxOff: " + offsets[3]);
+            System.out.println("gyOff: " + offsets[4]);
+            System.out.println("gzOff: " + offsets[5]);
+            System.out.println();
+        }
+        return offsets;
     }
 
     /**
@@ -2387,9 +2535,9 @@ public final class MPU6050 {
     public int[] getAcceleration() {
         int[] data = new int[3];
         buffer = I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_ACCEL_XOUT_H, 6);
-        data[0] = (((int) buffer[0]) << 8) | buffer[1]+32767; //ax
-        data[1] = (((int) buffer[2]) << 8) | buffer[3]+32767;//ay
-        data[2] = (((int) buffer[4]) << 8) | buffer[5]+32767;//az
+        data[0] = (((int) buffer[0]) << 8) | buffer[1] + 32767; //ax
+        data[1] = (((int) buffer[2]) << 8) | buffer[3] + 32767;//ay
+        data[2] = (((int) buffer[4]) << 8) | buffer[5] + 32767;//az
         return data;
     }
 
@@ -2478,9 +2626,9 @@ public final class MPU6050 {
     public int[] getRotation() {
         int[] data = new int[3];
         buffer = I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_GYRO_XOUT_H, 6);
-        data[0] = (((int) buffer[0]) << 8) | buffer[1]+32767; //ax
-        data[1] = (((int) buffer[2]) << 8) | buffer[3]+32767;//ay
-        data[2] = (((int) buffer[4]) << 8) | buffer[5]+32767;//az
+        data[0] = (((int) buffer[0]) << 8) | buffer[1] + 32767; //ax
+        data[1] = (((int) buffer[2]) << 8) | buffer[3] + 32767;//ay
+        data[2] = (((int) buffer[4]) << 8) | buffer[5] + 32767;//az
         return data;
     }
 
@@ -3638,65 +3786,66 @@ public final class MPU6050 {
         I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_Z_FINE_GAIN, (byte) gain);
     }
 
-//    // XA_OFFS_* registers
-//    int getXAccelOffset() {
-//        I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_XA_OFFS_H, 2);
-//        return (((int) buffer[0]) << 8) | buffer[1];
-//    }
-//
-//    public void setXAccelOffset(int offset) {
-//        I2Cdev.writeWord(MPU6050_Registers.MPU6050_RA_XA_OFFS_H, offset);
-//    }
-//
-//    // YA_OFFS_* register
-//    int getYAccelOffset() {
-//        I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_YA_OFFS_H, 2);
-//        return (((int) buffer[0]) << 8) | buffer[1];
-//    }
-//
-//    public void setYAccelOffset(int offset) {
-//        I2Cdev.writeWord(MPU6050_Registers.MPU6050_RA_YA_OFFS_H, offset);
-//    }
-//
-//    // ZA_OFFS_* register
-//    int getZAccelOffset() {
-//        I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_ZA_OFFS_H, 2);
-//        return (((int) buffer[0]) << 8) | buffer[1];
-//    }
-//
-//    public void setZAccelOffset(int offset) {
-//        I2Cdev.writeWord(MPU6050_Registers.MPU6050_RA_ZA_OFFS_H, offset);
-//    }
-//
-//    // XG_OFFS_USR* registers
-//    int getXGyroOffset() {
-//        I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_XG_OFFS_USRH, 2);
-//        return (((int) buffer[0]) << 8) | buffer[1];
-//    }
-//
-//    public void setXGyroOffset(int offset) {
-//        I2Cdev.writeWord(MPU6050_Registers.MPU6050_RA_XG_OFFS_USRH, offset);
-//    }
-//
-//    // YG_OFFS_USR* register
-//    int getYGyroOffset() {
-//        I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_YG_OFFS_USRH, 2);
-//        return (((int) buffer[0]) << 8) | buffer[1];
-//    }
-//
-//    public void setYGyroOffset(int offset) {
-//        I2Cdev.writeWord(MPU6050_Registers.MPU6050_RA_YG_OFFS_USRH, offset);
-//    }
-//
-//    // ZG_OFFS_USR* register
-//    int getZGyroOffset() {
-//        I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_ZG_OFFS_USRH, 2);
-//        return (((int) buffer[0]) << 8) | buffer[1];
-//    }
-//
-//    public void setZGyroOffset(int offset) {
-//        I2Cdev.writeWord(MPU6050_Registers.MPU6050_RA_ZG_OFFS_USRH, offset);
-//    }
+    // XA_OFFS_* registers
+    int getXAccelOffset() {
+        I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_XA_OFFS_H, 2);
+        return (((int) buffer[0]) << 8) | buffer[1];
+    }
+
+    public void setXAccelOffset(int offset) {
+        I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_XA_OFFS_H, (byte) offset);
+    }
+
+    // YA_OFFS_* register
+    int getYAccelOffset() {
+        I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_YA_OFFS_H, 2);
+        return (((int) buffer[0]) << 8) | buffer[1];
+    }
+
+    public void setYAccelOffset(int offset) {
+        I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_YA_OFFS_H, (byte) offset);
+    }
+
+    // ZA_OFFS_* register
+    int getZAccelOffset() {
+        I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_ZA_OFFS_H, 2);
+        return (((int) buffer[0]) << 8) | buffer[1];
+    }
+
+    public void setZAccelOffset(int offset) {
+        I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_ZA_OFFS_H, (byte) offset);
+    }
+
+    // XG_OFFS_USR* registers
+    int getXGyroOffset() {
+        I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_XG_OFFS_USRH, 2);
+        return (((int) buffer[0]) << 8) | buffer[1];
+    }
+
+    public void setXGyroOffset(int offset) {
+        I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_XG_OFFS_USRH, (byte) offset);
+    }
+
+    // YG_OFFS_USR* register
+    int getYGyroOffset() {
+        I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_YG_OFFS_USRH, 2);
+        return (((int) buffer[0]) << 8) | buffer[1];
+    }
+
+    public void setYGyroOffset(int offset) {
+        I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_YG_OFFS_USRH, (byte) offset);
+    }
+
+    // ZG_OFFS_USR* register
+    int getZGyroOffset() {
+        I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_ZG_OFFS_USRH, 2);
+        return (((int) buffer[0]) << 8) | buffer[1];
+    }
+
+    public void setZGyroOffset(int offset) {
+        I2Cdev.writeByte(MPU6050_Registers.MPU6050_RA_ZG_OFFS_USRH, (byte) offset);
+    }
+
     // INT_ENABLE register (DMP functions)
     public boolean getIntPLLReadyEnabled() {
         buffer[0] = (byte) I2Cdev.readBit(MPU6050_Registers.MPU6050_RA_INT_ENABLE, MPU6050_Registers.MPU6050_INTERRUPT_PLL_RDY_INT_BIT);
