@@ -67,18 +67,18 @@ public class I2CHelper {
         return -1;
     }
 
-    int[] readBytes(int regAddr, int length){
-            int[] data = new int[length];
-            int[] data2 = new int[length];
-            byte buffer[] = new byte[length];
+    byte[] readBytes(int regAddr, int length){
+            byte[] data = new byte[length];
+//            int[] data2 = new int[length];
+//            byte buffer[] = new byte[length];
         try {
-            device.read(regAddr, buffer, 0, length);
+            device.read(regAddr, data, 0, length);
             
-            for (int i = 0; i < length; i++) {
-                data[i] = readByte(regAddr + i);
-                data2[i] = (int) buffer[i];
-                System.out.println("data :" + data[i] + "data2 :" + data[i]);
-            }
+//            for (int i = 0; i < length; i++) {
+//                data[i] = readByte(regAddr + i);
+//                data2[i] = (int) buffer[i];
+//                System.out.println("data :" + data[i] + "data2 :" + data[i]);
+//            }
             
         } catch (IOException ex) {
             Logger.getLogger(I2CHelper.class.getName()).log(Level.SEVERE, null, ex);

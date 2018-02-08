@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  *
  * @author yoann
  */
-public class MPUUnitaryTest {
+public class MPUUnitaryTestPython {
 
     static MPU6050 mpu;
 
@@ -24,6 +24,15 @@ public class MPUUnitaryTest {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        
+        try {
+            Process p = Runtime.getRuntime().exec("python ~/Desktop/mpu.py");
+            System.out.println(p.getInputStream());
+        } catch (IOException ex) {
+            Logger.getLogger(MPUUnitaryTestPython.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
         mpu = new MPU6050();
 
         if (mpu.testConnection()) {
@@ -52,7 +61,7 @@ public class MPUUnitaryTest {
                 p2.updatePlot(pitch, roll);
 
             } catch (InterruptedException ex) {
-                Logger.getLogger(MPUUnitaryTest.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(MPUUnitaryTestPython.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
