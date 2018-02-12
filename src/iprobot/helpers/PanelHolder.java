@@ -5,6 +5,7 @@
  */
 package iprobot.helpers;
 
+import java.awt.LayoutManager;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -21,6 +22,9 @@ public class PanelHolder {
     public PanelHolder(JPanel... panels) {
         createAndShowGUI(panels);
     }
+    public PanelHolder(LayoutManager layout,JPanel... panels) {
+        createAndShowGUI(layout, panels);
+    }
 
     /**
      * The time series data.
@@ -32,6 +36,21 @@ public class PanelHolder {
         f = new JFrame("JFrame");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setLayout(new VerticalLayout());
+        for (JPanel p : panels) {
+            f.add(p);
+        }
+        f.setResizable(false);
+        f.pack();
+//        frame.setLocationRelativeTo(null);
+        RefineryUtilities.centerFrameOnScreen(f);
+        f.setVisible(true);
+        f.setResizable(true);
+        frameCreated = true;
+    }
+      public static void createAndShowGUI(LayoutManager layout, JPanel... panels) {
+        f = new JFrame("JFrame");
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setLayout(layout);
         for (JPanel p : panels) {
             f.add(p);
         }

@@ -5,6 +5,7 @@ import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CFactory;
 import iprobot.helpers.CustomTimePlotterPanel;
+import iprobot.helpers.CustomVariableTuner;
 import iprobot.helpers.MiniPID;
 import iprobot.helpers.MotorController;
 import iprobot.helpers.Mpu6050_2;
@@ -36,12 +37,18 @@ public class SegwayTest {
         MotorController motorL = new MotorController(gpio, RaspiPin.GPIO_04, RaspiPin.GPIO_02, RaspiPin.GPIO_01, RaspiPin.GPIO_03);
         MotorController motorR = new MotorController(gpio, RaspiPin.GPIO_12, RaspiPin.GPIO_13, RaspiPin.GPIO_23, RaspiPin.GPIO_03);
         CustomTimePlotterPanel p1 = new CustomTimePlotterPanel(2, -180, 180, "ax", "mot");
-        PanelHolder ph = new PanelHolder(p1);
-        MiniPID pid = new MiniPID(2,0.000,10);double output;
+        CustomVariableTuner.SwingSlider s1= new CustomVariableTuner.SwingSlider("p",-100,100,0,5,10);
+        CustomVariableTuner.SwingSlider s2= new CustomVariableTuner.SwingSlider("i",-100,100,0,1,10);
+        CustomVariableTuner.SwingSlider s3= new CustomVariableTuner.SwingSlider("d",-100,100,0,5,10);
+
+        PanelHolder ph = new PanelHolder(p1,s1,s2,s3);
+        MiniPID pid = new MiniPID(2,0.000,10);
+        double output;
         try {
             mpu = new Mpu6050_2();
             while (true) {
 
+                pid.setPID(s1.value/10.0, s2.value/1000.0, s3.value/10.0);
                 mpu.refresh();
                 output = pid.getOutput(mpu.filtered_x_angle,0.057);
                 MotorController.drive(motorL, motorR, (int) (output * -255));
