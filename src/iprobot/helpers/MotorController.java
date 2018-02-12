@@ -123,6 +123,22 @@ public class MotorController {
         }
     }
 
+    static public void drive(MotorController motor1, MotorController motor2, int speed) {
+
+        if (Math.abs(speed) > motor1.PWMRange) {
+            speed = (int) (Math.signum(speed) * motor1.PWMRange);
+        }
+        if (motor1.STBYpin != null) // can be null as the standby pin is shared to several motor, only one of them can control the standby pin
+        {
+            motor1.STBYpin.setState(PinState.HIGH);
+        }
+        if (speed >= 0) {
+            MotorController.forward(motor1, motor2, speed);
+        } else {
+            MotorController.back(motor1, motor2, -speed);
+        }
+    }
+
     public void drive(int speed, int durationMs) {
         drive(speed);
         try {
