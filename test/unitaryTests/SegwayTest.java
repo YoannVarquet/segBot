@@ -35,20 +35,21 @@ public class SegwayTest {
         final GpioController gpio = GpioFactory.getInstance();
         MotorController motorL = new MotorController(gpio, RaspiPin.GPIO_04, RaspiPin.GPIO_02, RaspiPin.GPIO_01, RaspiPin.GPIO_03);
         MotorController motorR = new MotorController(gpio, RaspiPin.GPIO_12, RaspiPin.GPIO_13, RaspiPin.GPIO_23, RaspiPin.GPIO_03);
-//        CustomTimePlotterPanel p1 = new CustomTimePlotterPanel(2, -180, 180, "ax", "mot");
-//        PanelHolder ph = new PanelHolder(p1);
-        MiniPID pid = new MiniPID(10,0.1,1);double output;
+        CustomTimePlotterPanel p1 = new CustomTimePlotterPanel(2, -180, 180, "ax", "mot");
+        PanelHolder ph = new PanelHolder(p1);
+        MiniPID pid = new MiniPID(2,0.000,10);double output;
         try {
             mpu = new Mpu6050_2();
             while (true) {
 
                 mpu.refresh();
-                output = pid.getOutput(mpu.filtered_x_angle,0);
-                MotorController.drive(motorL, motorR, (int) (output * 255));
-                System.out.println(mpu.dt);
-//                p1.updatePlot(mpu.filtered_x_angle * 180,(int) (mpu.filtered_x_angle * 255));
+                output = pid.getOutput(mpu.filtered_x_angle,0.057);
+                MotorController.drive(motorL, motorR, (int) (output * -255));
+//                System.out.println((int) (output * 255));
+                System.out.println(mpu.filtered_x_angle);
+                p1.updatePlot(mpu.filtered_x_angle * 180,(int) (mpu.filtered_x_angle * 255));
 
-//                mpu.delay(20);
+                mpu.delay(20);
             }
         } catch (I2CFactory.UnsupportedBusNumberException | IOException ex) {
             Logger.getLogger(SegwayTest.class.getName()).log(Level.SEVERE, null, ex);
