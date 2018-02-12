@@ -2,15 +2,8 @@ package unitaryTests;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
-import com.pi4j.io.gpio.GpioPinDigitalInput;
-import com.pi4j.io.gpio.PinEdge;
-import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.RaspiPin;
-import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
-import com.pi4j.io.gpio.event.GpioPinListenerDigital;
-import iprobot.helpers.CustomTimePlotterPanel;
 import iprobot.helpers.MotorController;
-import iprobot.helpers.PanelHolder;
 
 /*
  * To change this license header, choose License Headers in Project Properties.

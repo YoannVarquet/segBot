@@ -54,6 +54,12 @@ public final class MPU6050 {
         devAddr = (byte) MPU6050_Registers.MPU6050_DEFAULT_ADDRESS;
         I2Cdev = new I2CHelper(I2CBus.BUS_1, devAddr);
         this.initialize();
+//        setXAccelOffset(654);
+//        setYAccelOffset(2372);
+//        setZAccelOffset(3702);
+//        setXGyroOffset(77);
+//        setYGyroOffset(13);
+//        setZGyroOffset(104);
     }
 
     /**
@@ -69,23 +75,6 @@ public final class MPU6050 {
         setFullScaleGyroRange((byte) MPU6050_Registers.MPU6050_GYRO_FS_250);
         setFullScaleAccelRange((byte) MPU6050_Registers.MPU6050_ACCEL_FS_2);
         setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
-        //offset
-//x_avg_read: -0.04 x_avg_offset: 653.87775
-//y_avg_read: -1.16 y_avg_offset: 2371.51375
-//z_avg_read: 0.04 z_avg_offset: 3701.58525
-//x_avg_read: 0.14 x_avg_offset: 76.827625
-//y_avg_read: -0.21 y_avg_offset: 13.3279375
-//z_avg_read: 0.59 z_avg_offset: 104.1259375
-
-        setXAccelOffset(654);
-        setYAccelOffset(2372);
-        setZAccelOffset(3702);
-        setXGyroOffset(77);
-        setYGyroOffset(13);
-        setZGyroOffset(104);
-        
-        averageReadings(200, false);
-        averageReadings(1000, true);
 
     }
 
@@ -2600,9 +2589,9 @@ public final class MPU6050 {
     public int[] getAcceleration() {
         int[] data = new int[3];
         buffer = I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_ACCEL_XOUT_H, 6);
-        data[0] = (((int) buffer[0]) << 8) | buffer[1] + 32767; //ax
-        data[1] = (((int) buffer[2]) << 8) | buffer[3] + 32767;//ay
-        data[2] = (((int) buffer[4]) << 8) | buffer[5] + 32767;//az
+        data[0] = (((int) buffer[0]) << 8) | buffer[1] ; //ax
+        data[1] = (((int) buffer[2]) << 8) | buffer[3] ;//ay
+        data[2] = (((int) buffer[4]) << 8) | buffer[5] ;//az
         return data;
     }
 
@@ -2615,7 +2604,7 @@ public final class MPU6050 {
      */
     public int getAccelerationX() {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_ACCEL_XOUT_H, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     /**
@@ -2627,7 +2616,7 @@ public final class MPU6050 {
      */
     public int getAccelerationY() {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_ACCEL_YOUT_H, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     /**
@@ -2639,7 +2628,7 @@ public final class MPU6050 {
      */
     public int getAccelerationZ() {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_ACCEL_ZOUT_H, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     // TEMP_OUT_* registers
@@ -2651,7 +2640,7 @@ public final class MPU6050 {
      */
     public int getTemperature() {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_TEMP_OUT_H, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     // GYRO_*OUT_* registers
@@ -2691,9 +2680,9 @@ public final class MPU6050 {
     public int[] getRotation() {
         int[] data = new int[3];
         buffer = I2Cdev.readBytes_b(MPU6050_Registers.MPU6050_RA_GYRO_XOUT_H, 6);
-        data[0] = (((int) buffer[0]) << 8) | buffer[1] + 32767; //ax
-        data[1] = (((int) buffer[2]) << 8) | buffer[3] + 32767;//ay
-        data[2] = (((int) buffer[4]) << 8) | buffer[5] + 32767;//az
+        data[0] = (((int) buffer[0]) << 8) | buffer[1] ; //ax
+        data[1] = (((int) buffer[2]) << 8) | buffer[3] ;//+ 32767;//ay
+        data[2] = (((int) buffer[4]) << 8) | buffer[5] ;//az
         return data;
     }
 
@@ -2706,7 +2695,7 @@ public final class MPU6050 {
      */
     public int getRotationX() {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_GYRO_XOUT_H, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     /**
@@ -2718,7 +2707,7 @@ public final class MPU6050 {
      */
     public int getRotationY() {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_GYRO_YOUT_H, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     /**
@@ -2730,7 +2719,7 @@ public final class MPU6050 {
      */
     public int getRotationZ() {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_GYRO_ZOUT_H, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     // EXT_SENS_DATA_* registers
@@ -2827,7 +2816,7 @@ public final class MPU6050 {
      */
     public int getExternalSensorWord(int position) {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_EXT_SENS_DATA_00 + position, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     /**
@@ -3694,7 +3683,7 @@ public final class MPU6050 {
      */
     public int getFIFOCount() {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_FIFO_COUNTH, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     // FIFO_R_W register
@@ -3854,7 +3843,7 @@ public final class MPU6050 {
     // XA_OFFS_* registers
     int getXAccelOffset() {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_XA_OFFS_H, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     public void setXAccelOffset(int offset) {
@@ -3864,7 +3853,7 @@ public final class MPU6050 {
     // YA_OFFS_* register
     int getYAccelOffset() {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_YA_OFFS_H, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     public void setYAccelOffset(int offset) {
@@ -3874,7 +3863,7 @@ public final class MPU6050 {
     // ZA_OFFS_* register
     int getZAccelOffset() {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_ZA_OFFS_H, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     public void setZAccelOffset(int offset) {
@@ -3884,7 +3873,7 @@ public final class MPU6050 {
     // XG_OFFS_USR* registers
     int getXGyroOffset() {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_XG_OFFS_USRH, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     public void setXGyroOffset(int offset) {
@@ -3894,7 +3883,7 @@ public final class MPU6050 {
     // YG_OFFS_USR* register
     int getYGyroOffset() {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_YG_OFFS_USRH, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     public void setYGyroOffset(int offset) {
@@ -3904,7 +3893,7 @@ public final class MPU6050 {
     // ZG_OFFS_USR* register
     int getZGyroOffset() {
         byte[] buf = I2Cdev.readBytes(MPU6050_Registers.MPU6050_RA_ZG_OFFS_USRH, 2);
-        return (((int) buf[1]) << 8) | buf[0];
+        return (((int) buf[0]) << 8) | buf[1];
     }
 
     public void setZGyroOffset(int offset) {

@@ -54,7 +54,7 @@ public class IncremetalEncoderUnitaryTest {
         MotorController motorR = new MotorController(gpio, RaspiPin.GPIO_12, RaspiPin.GPIO_13, RaspiPin.GPIO_23, RaspiPin.GPIO_03);
 
         // set wheel coder pin
-        wheelCoder = gpio.provisionDigitalInputPin(RaspiPin.GPIO_25, PinPullResistance.PULL_DOWN);
+        wheelCoder = gpio.provisionDigitalInputPin(RaspiPin.GPIO_27, PinPullResistance.PULL_DOWN);
 
         // create and register gpio pin listener
         estimatedTime = System.currentTimeMillis();
