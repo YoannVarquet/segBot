@@ -23,6 +23,7 @@ public class MotorController {
     GpioController gpio;
     GpioPinDigitalOutput In1pin, In2pin, STBYpin;
     GpioPinPwmOutput PWMpin;
+    public WheelEncoder encoder;
     int PWMRange;
 
     public GpioController getGpio() {
@@ -217,6 +218,10 @@ public class MotorController {
     static public void brake(MotorController motor1, MotorController motor2) {
         motor1.brake();
         motor2.brake();
+    }
+    
+    public void attachEncoder(WheelEncoder e){
+    this.encoder = e;
     }
 
 }

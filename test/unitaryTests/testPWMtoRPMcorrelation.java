@@ -35,7 +35,7 @@ public class testPWMtoRPMcorrelation {
         MotorController motor = new MotorController(gpio, RaspiPin.GPIO_04, RaspiPin.GPIO_02, RaspiPin.GPIO_01, RaspiPin.GPIO_03);
 
         // set wheel coder pin
-        wheelCoder = gpio.provisionDigitalInputPin(RaspiPin.GPIO_25, PinPullResistance.PULL_DOWN);
+        wheelCoder = gpio.provisionDigitalInputPin(RaspiPin.GPIO_27, PinPullResistance.PULL_DOWN);
 
         // create and register gpio pin listener
         estimatedTime = System.currentTimeMillis();
@@ -86,7 +86,7 @@ public class testPWMtoRPMcorrelation {
         double speedRpm;
         //compute RPM
         pulsePerSecond = (wheelCpt * 1000.0) / (double) estimatedTime;
-        speedRpm = (pulsePerSecond * 60.0) / 20.0;
+        speedRpm = (pulsePerSecond * 60.0) / 143;
 
         if (speedRpm > 230) {
             speedRpm = 230;
