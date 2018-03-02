@@ -1,10 +1,11 @@
 package unitaryTests;
 
-
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.RaspiPin;
 import iprobot.helpers.MotorController;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -22,25 +23,45 @@ public class MotorDriverUnitaryTest {
      */
     public static void main(String[] args) {
         GpioController gpio = GpioFactory.getInstance();
-        MotorController motor = new MotorController(gpio, RaspiPin.GPIO_04, RaspiPin.GPIO_02, RaspiPin.GPIO_01, RaspiPin.GPIO_03);
+        MotorController motorL = new MotorController(gpio, RaspiPin.GPIO_04, RaspiPin.GPIO_02, RaspiPin.GPIO_01, RaspiPin.GPIO_03);
+        MotorController motorR = new MotorController(gpio, RaspiPin.GPIO_12, RaspiPin.GPIO_13, RaspiPin.GPIO_23, RaspiPin.GPIO_03);
+
         int cpt = 0;
-        int inc = 1;
-        int times = 2;
-        while (times > 0) {
-
-            if (cpt >= 255) {
-                inc = -1;
-                times--;
+        while (cpt < 255) {
+            motorL.drive(cpt);
+            motorR.drive(cpt);
+            System.out.println(cpt);
+            cpt+=2;
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MotorDriverUnitaryTest.class.getName()).log(Level.SEVERE, null, ex);
             }
-            if (cpt <= -255) {
-                inc = 1;
+            MotorController.brake(motorL, motorR);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MotorDriverUnitaryTest.class.getName()).log(Level.SEVERE, null, ex);
             }
-            cpt += inc;
-            motor.drive(cpt, 5);
-            System.out.println("PWM rate is: " + cpt);
-
         }
-        motor.brake();
+//        int cpt = 0;
+//        int inc = 1;
+//        int times = 2;
+//        while (times > 0) {
+//
+//            if (cpt >= 255) {
+//                inc = -1;
+//                times--;
+//            }
+//            if (cpt <= -255) {
+//                inc = 1;
+//            }
+//            cpt += inc;
+//            motor.drive(cpt, 5);
+//            System.out.println("PWM rate is: " + cpt);
+//
+//        }
+        MotorController.brake(motorL, motorR);
     }
     /**
      * @param args the command line arguments

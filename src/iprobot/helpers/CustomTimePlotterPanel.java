@@ -44,11 +44,22 @@ public class CustomTimePlotterPanel extends JPanel {
                 seriePlotter.add(timeSerieTmp);
                 datasetPlotter.add(new TimeSeriesCollection(timeSerieTmp));
             }
-            chartPanel = new ChartPanel(createChart(datasetPlotter));
+            chart = createChart(datasetPlotter);
+            chartPanel = new ChartPanel(chart);
             this.add(chartPanel);
             chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         }
     }
+    private JFreeChart chart; 
+    
+   public void setChartTimeRange(int timeMS){
+        if (chartPanel != null) {
+            final XYPlot plot = chartPanel.getChart().getXYPlot();
+
+            org.jfree.chart.axis.ValueAxis axis = plot.getDomainAxis();
+            axis.setAutoRange(true);
+            axis.setFixedAutoRange(timeMS);  // 60 seconds
+        }    }
 
     public CustomTimePlotterPanel(int nbSeries, double rangeMin, double rangeMax, String... names) {
         if (nbSeries <= 0 || names.length != nbSeries) {
@@ -61,7 +72,8 @@ public class CustomTimePlotterPanel extends JPanel {
                 seriePlotter.add(timeSerieTmp);
                 datasetPlotter.add(new TimeSeriesCollection(timeSerieTmp));
             }
-            chartPanel = new ChartPanel(createChart(datasetPlotter));
+            chart = createChart(datasetPlotter);
+            chartPanel = new ChartPanel(chart);
             this.add(chartPanel);
             chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
             setRange(rangeMin, rangeMax);
@@ -101,7 +113,7 @@ public class CustomTimePlotterPanel extends JPanel {
 
         org.jfree.chart.axis.ValueAxis axis = plot.getDomainAxis();
         axis.setAutoRange(true);
-        axis.setFixedAutoRange(60000.0);  // 60 seconds
+        axis.setFixedAutoRange(30000.0);  // 60 seconds
         axis = plot.getRangeAxis();
         axis.setRange(-300, 300);
         return result;

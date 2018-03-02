@@ -25,6 +25,7 @@ public class MotorController {
     GpioPinPwmOutput PWMpin;
     public WheelEncoder encoder;
     int PWMRange;
+    int motorDeadZone = 0;//the motor doesn't rotate from zero to motorDeadZone; //obtained experimentally
 
     public GpioController getGpio() {
         return gpio;
@@ -100,7 +101,16 @@ public class MotorController {
         In1pin = gpio.provisionDigitalOutputPin(in1pin, PinState.LOW);
         In2pin = gpio.provisionDigitalOutputPin(in2pin, PinState.LOW);
         PWMpin = gpio.provisionPwmOutputPin(pWMpin);
-        STBYpin = gpio.provisionDigitalOutputPin(sTBYpin, PinState.LOW);
+//        STBYpin = gpio.provisionDigitalOutputPin(sTBYpin, PinState.LOW);
+        boolean provisionStandByPin = true;
+        for (GpioPin p : gpioController.getProvisionedPins()) {
+            if (sTBYpin.getName().equals(p.getName())) {
+                provisionStandByPin = false;
+            }
+        }
+        if (provisionStandByPin) {
+            STBYpin = gpio.provisionDigitalOutputPin(sTBYpin, PinState.LOW);
+        }
         com.pi4j.wiringpi.Gpio.pwmSetMode(com.pi4j.wiringpi.Gpio.PWM_MODE_MS);
         com.pi4j.wiringpi.Gpio.pwmSetRange(pWMRange);
         com.pi4j.wiringpi.Gpio.pwmSetClock(500);
@@ -152,14 +162,22 @@ public class MotorController {
     private void forward(int speed) {
         In1pin.setState(PinState.HIGH);
         In2pin.setState(PinState.LOW);
-        PWMpin.setPwm(speed);
+        if (motorDeadZone != 0 && speed !=0) {
+            PWMpin.setPwm(speed+motorDeadZone);
+        } else {
+            PWMpin.setPwm(speed);
+        }
 
     }
 
     private void reverse(int speed) {
         In1pin.setState(PinState.LOW);
         In2pin.setState(PinState.HIGH);
-        PWMpin.setPwm(speed);
+        if (motorDeadZone != 0 && speed !=0) {
+            PWMpin.setPwm(speed+motorDeadZone);
+        } else {
+            PWMpin.setPwm(speed);
+        }
 
     }
 
@@ -219,9 +237,12 @@ public class MotorController {
         motor1.brake();
         motor2.brake();
     }
-    
-    public void attachEncoder(WheelEncoder e){
-    this.encoder = e;
+
+    public void attachEncoder(WheelEncoder e) {
+        this.encoder = e;
     }
 
+    int map(int x, int rangeINmin, int rangeINmax, int rangeOUTmin, int rangeMAXout) {
+        return (int) ((double) (x - rangeINmin) * (double) (rangeMAXout - rangeOUTmin) / (double) (rangeINmax - rangeINmin) + (double) rangeOUTmin);
+    }
 }
